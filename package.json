@@ -1,0 +1,22 @@
+{
+    "name": "service",
+    "module": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "dev": "bun run --watch src/index.ts",
+        "build": "bun build src/index.ts --compile --outfile dist/service"
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "eslint": "^9.9.1",
+        "eslint-config-prettier": "^9.1.0",
+        "prettier": "^3.3.3",
+        "prettier-plugin-organize-imports": "^4.0.0",
+        "tslib": "^2.7.0",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^8.3.0"
+    },
+    "dependencies": {
+        "winston": "^3.14.2"
+    }
+}
