@@ -1,6 +1,6 @@
 import winston from 'winston'
 
-const {combine, timestamp, printf, prettyPrint, simple} = winston.format
+const {combine, timestamp, printf, prettyPrint} = winston.format
 
 type TransportTypes =
     | winston.transports.ConsoleTransportInstance
@@ -8,22 +8,21 @@ type TransportTypes =
 
 const transports: TransportTypes[] = [new winston.transports.Console()]
 
-const logformat = printf(({level, message, label, timestamp}) => {
+const logformat = printf(({level, message, timestamp}) => {
     return `${timestamp} ${level}: ${message}`
 })
 
-if (Bun.env.SERVICE_LOG) {
+if (Bun.env.SERVICE_INFO_LOG) {
     transports.push(
         new winston.transports.File({
             level: Bun.env.SERVICE_LOG_LEVEL || 'info',
-            filename: Bun.env.SERVICE_LOG,
+            filename: Bun.env.SERVICE_INFO_LOG,
             format: logformat,
         })
     )
 }
 
 if (Bun.env.SERVICE_ERROR_LOG) {
-    console.log(Bun.env)
     transports.push(
         new winston.transports.File({
             level: 'error',

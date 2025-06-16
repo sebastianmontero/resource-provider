@@ -1,15 +1,12 @@
-async function main() {}
+import {prompt} from './cli'
+import {logger} from './logger'
+import {server} from './server'
 
-function ensureExit(code: number, timeout = 3000) {
-    process.exitCode = code
-    setTimeout(() => {
-        process.exit(code)
-    }, timeout)
+if (Bun.env.ENVIRONMENT === 'testing') {
+    // Automatically start the server in testing environment
+    logger.debug('Starting server in testing environment...')
+    server()
+} else {
+    // Otherwise use prompt for CLI commands
+    prompt()
 }
-
-process.once('uncaughtException', (error) => {
-    console.error(error, 'Uncaught exception')
-    ensureExit(1)
-})
-
-main()
