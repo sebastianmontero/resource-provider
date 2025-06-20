@@ -1,13 +1,6 @@
 {
-	"overrides": [
-		{
-			"files": "*.svelte",
-			"options": {
-				"parser": "svelte"
-			}
-		}
-	],
-	"plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss", "prettier-plugin-sort-json"],
+	"overrides": [],
+	"plugins": [],
 	"printWidth": 100,
 	"singleQuote": true,
 	"trailingComma": "none",

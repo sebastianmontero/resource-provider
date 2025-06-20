@@ -1,47 +1,69 @@
-import {Elysia} from 'elysia'
-import {BunAdapter} from 'elysia/adapter/bun'
-import {swagger} from '@elysiajs/swagger'
-import {cors} from '@elysiajs/cors'
+import { cors } from '@elysiajs/cors';
+import { swagger } from '@elysiajs/swagger';
+import type { ElysiaSwaggerConfig } from '@elysiajs/swagger';
+import { Elysia } from 'elysia';
+import { BunAdapter } from 'elysia/adapter/bun';
 
-import {UsageDatabase} from './lib/db'
-import {logger} from './logger'
+import { v1 } from '$api/v1';
+import { v2 } from '$api/v2';
+import { logger } from '$lib/logger';
+import { UsageDatabase } from '$lib/sqlite/db';
 
-import {v1} from './v1'
+const usage = new UsageDatabase();
 
-const usage = new UsageDatabase()
+const port = Bun.env.SERVICE_HTTP_PORT || 3000;
 
-const port = Bun.env.SERVICE_HTTP_PORT || 3000
-
-const swaggerConfig = {
-    documentation: {
-        info: {
-            title: 'Resource Provider API',
-            description: 'API documentation for Resource Provider',
-            version: '0.0.0',
-        },
-        tags: [{name: 'v1', description: 'Version 1 Endpoints'}],
-    },
-}
+const swaggerConfig: ElysiaSwaggerConfig = {
+	documentation: {
+		info: {
+			title: 'Resource Provider APIs',
+			description: 'API documentation for Resource Provider services',
+			version: '0.0.0'
+		},
+		security: [{ bearerAuth: [] }],
+		components: {
+			securitySchemes: {
+				bearerAuth: {
+					type: 'http',
+					scheme: 'bearer',
+					bearerFormat: 'string',
+					description: 'Enter Bearer token **_only_**'
+				}
+			}
+		},
+		tags: [
+			{
+				name: 'Resource Provider (v2)',
+				description: 'Resource Provider endpoints to publicly offer resources to users.'
+			},
+			{
+				name: 'Resource Provider (v1)',
+				description: 'Legacy Resource Provider endpoints'
+			},
+			{
+				name: 'Resource Manager',
+				description: 'Resource Management endpoints for resource automation (requires Bearer token)'
+			}
+		]
+	},
+	swaggerOptions: {
+		persistAuthorization: true
+	}
+};
 
 export function server() {
-    const app = new Elysia({
-        adapter: BunAdapter,
-        aot: true,
-    })
+	const app = new Elysia({
+		adapter: BunAdapter,
+		aot: true
+	});
 
-    if (Bun.env.ENVIRONMENT === 'production') {
-        app.use(
-            cors({
-                origin: true,
-            })
-        )
-    }
+	app.use(cors({ origin: true }));
+	app.use(swagger(swaggerConfig));
+	app.decorate('usage', usage);
+	app.use(v1);
+	app.use(v2);
+	app.listen(port);
 
-    app.use(swagger(swaggerConfig))
-    app.decorate('usage', usage)
-    app.use(v1)
-    app.listen(port)
-
-    logger.info(`Server is running on http://localhost:${port}`)
-    return app
+	logger.info(`Resource Provider API running on http://localhost:${port}`);
+	return app;
 }

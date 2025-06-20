@@ -14,6 +14,14 @@ build: deps
 dev: deps
 	bun run dev
 
+.PHONY: dev
+dev/api: deps
+	bun run dev/api
+
+.PHONY: dev
+dev/manager: deps
+	bun run dev/manager
+
 .PHONY: test
 test: deps clean/testdb 
 	bun --env-file=./test/.env test
@@ -24,7 +32,7 @@ test/watch: deps
 
 .PHONY: check
 check: deps
-	bun run check && bun run lint
+	bun run lint
 
 .PHONY: format
 format: deps
