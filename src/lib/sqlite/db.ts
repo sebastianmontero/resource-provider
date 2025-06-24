@@ -115,7 +115,6 @@ export class UsageDatabase extends AbstractDatabase {
 	}
 
 	async getUsage(account: string): Promise<{ usage: number }> {
-		this.cleanUsage(); // Clean up old usage before adding new
 		return this.db
 			.query(`SELECT COALESCE(sum(usage), 0) as usage FROM usage WHERE account = ?`)
 			.get(account) as { usage: number };
