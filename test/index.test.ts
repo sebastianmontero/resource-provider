@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'bun:test';
 
-import { UsageDatabase } from '../src/lib/sqlite/db';
+import { UsageDatabase } from '$lib/db/models/provider/usage';
 
 const usage = new UsageDatabase();
 

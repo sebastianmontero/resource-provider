@@ -4,7 +4,7 @@ import type { ResolvedSigningRequest, SigningRequest } from '@wharfkit/signing-r
 import type { Static } from 'elysia';
 
 import { v1ResponseResources, v1ResponseTypes, v1ProviderRequestBody } from '$api/v1/types';
-import { logger } from '$lib/logger';
+import { providerLog } from '$lib/logger';
 import { client } from '$lib/wharf/client';
 import { getProviderSession } from '$lib/wharf/session/provider';
 import { createSigningRequest } from '$lib/wharf/signing-request';
@@ -29,7 +29,7 @@ export function resolvePermissionLevel(signer: PermissionLevelType): PermissionL
 
 export async function getSignerResources(requester: PermissionLevel) {
 	const response = await client.v1.chain.get_account(requester.actor);
-	logger.info('data', Serializer.objectify(response));
+	providerLog.info('data', Serializer.objectify(response));
 	return {
 		cpu: response.cpu_limit.available,
 		net: response.net_limit.available,
@@ -107,7 +107,7 @@ async function resolveTransaction(
 
 function validateRequest(request: SigningRequest): void {
 	const actions = request.getRawActions();
-	logger.debug('actions', JSON.stringify(actions));
+	providerLog.debug('actions', JSON.stringify(actions));
 
 	// Refuse identity requests
 	if (request.isIdentity()) {

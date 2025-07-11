@@ -6,8 +6,8 @@ import type { CronCallback, CronOptions } from 'croner';
 import type { Static } from 'elysia';
 
 import type { v2ManagedAccountType } from '$api/v2/managed/types';
-import { logger } from '$lib/logger';
-import { ManagedAccount, ManagedDatabase } from '$lib/sqlite/db';
+import { managerLog } from '$lib/logger';
+import { ManagedAccount, ManagedAccountDatabase } from '$lib/db/models/manager/account';
 import { isENVTrue, objectify } from '$lib/utils';
 import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
@@ -16,11 +16,11 @@ import { getManagerSession } from '$lib/wharf/session/manager';
 
 // TODO: Research potentially using https://elysiajs.com/plugins/cron
 const cron = '0/5 * * * * *'; // Every 5 seconds
-const cronOptions: CronOptions = { catch: (e) => logger.error(e) };
+const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
 const enabled = isENVTrue(Bun.env.ENABLE_RESOURCE_MANAGER);
 
 interface ManagerContext {
-	db: ManagedDatabase;
+	db: ManagedAccountDatabase;
 	managedAccounts: Array<Static<typeof v2ManagedAccountType>>;
 	sampleUsage: SampleUsage;
 	powerup: PowerUpState;
@@ -41,7 +41,7 @@ async function manageAccountResources(
 	const net_frac = Int64.from(0);
 
 	if (resources.cpu.lte(managed.min_cpu.multiplying(1000))) {
-		logger.info(`CPU is below minimum, attempting to powerup ${managed.inc_ms}ms`, {
+		managerLog.info(`CPU is below minimum, attempting to powerup ${managed.inc_ms}ms`, {
 			minimum: Number(managed.min_cpu.multiplying(1000)),
 			current: Number(resources.cpu),
 			increment: Number(managed.inc_ms.multiplying(1000))
@@ -52,7 +52,7 @@ async function manageAccountResources(
 	}
 
 	if (resources.net.lte(managed.min_net.multiplying(1000))) {
-		logger.info(`NET is below minimum, attempting to powerup ${managed.inc_kb}kb`, {
+		managerLog.info(`NET is below minimum, attempting to powerup ${managed.inc_kb}kb`, {
 			minimum: Number(managed.min_net.multiplying(1000)),
 			current: Number(resources.net),
 			increment: Number(managed.inc_kb.multiplying(1000))
@@ -62,7 +62,7 @@ async function manageAccountResources(
 		net_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
 	}
 
-	logger.debug('Powerup Calculations', {
+	managerLog.debug('Powerup Calculations', {
 		cpu_cost: String(cpu_cost),
 		cpu_frac: Number(cpu_frac),
 		net_cost: String(net_cost),
@@ -78,15 +78,15 @@ async function manageAccountResources(
 			days: 1,
 			max_payment: managed.max_fee
 		};
-		logger.info('powerup params', objectify(params));
+		managerLog.info('powerup params', objectify(params));
 
 		const action = systemContract.action('powerup', params);
-		logger.info('powerup action', objectify(action));
+		managerLog.info('powerup action', objectify(action));
 	}
 }
 
 async function getManagerContext(): Promise<ManagerContext> {
-	const db = new ManagedDatabase();
+	const db = new ManagedAccountDatabase();
 	return {
 		db,
 		managedAccounts: await db.getManagedAccounts(),
@@ -99,7 +99,7 @@ const managerJob: CronCallback = async function (self, context) {
 	const cronContext = context as { manager: Session };
 	const managerContext = await getManagerContext();
 	for (const account of managerContext.managedAccounts) {
-		logger.info('Running resource management', { account: objectify(account) });
+		managerLog.info('Running resource management', { account: objectify(account) });
 		manageAccountResources(cronContext.manager, account, managerContext);
 	}
 };
@@ -107,15 +107,16 @@ const managerJob: CronCallback = async function (self, context) {
 export async function manager() {
 	try {
 		if (!enabled) {
-			throw new Error(
-				'Resource Manager Service is disabled. Set ENABLE_RESOURCE_MANAGER=true to run.'
+			managerLog.info(
+				'Resource Manager Service is disabled. Set ENABLE_RESOURCE_MANAGER=true if you wish to run this service.'
 			);
+			return;
 		}
 
 		const manager = getManagerSession();
 		new Cron(cron, { ...cronOptions, context: { manager } }, managerJob);
-		logger.info('Resource Manager Service started', { cron });
+		managerLog.info('Resource Manager Service started', { cron });
 	} catch (error) {
-		logger.error(error);
+		managerLog.error(error);
 	}
 }

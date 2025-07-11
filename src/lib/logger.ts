@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston';
 
-const { simple, metadata, combine, timestamp, printf, prettyPrint } = format;
+const { simple, metadata, combine, timestamp, printf, prettyPrint, label } = format;
 
 type TransportTypes = transports.ConsoleTransportInstance | transports.FileTransportInstance;
 
@@ -30,11 +30,22 @@ if (Bun.env.SERVICE_ERROR_LOG) {
 	);
 }
 
-export const logger = createLogger({
-	level: Bun.env.SERVICE_LOG_LEVEL || 'info',
-	format:
-		Bun.env.SERVICE_ENVIRONMENT === 'development'
-			? combine(metadata({ key: 'data' }), timestamp(), prettyPrint({ colorize: true, depth: 10 }))
-			: combine(timestamp(), simple()),
-	transports: defaultTransports
-});
+function makeLogger(labelName: string) {
+	return createLogger({
+		level: Bun.env.SERVICE_LOG_LEVEL || 'info',
+		format:
+			Bun.env.SERVICE_ENVIRONMENT === 'development'
+				? combine(
+						label({ label: labelName }),
+						metadata({ key: 'data' }),
+						timestamp(),
+						prettyPrint({ colorize: true, depth: 10 })
+					)
+				: combine(label({ label: labelName }), timestamp(), simple()),
+		transports: defaultTransports
+	});
+}
+
+export const generalLog = makeLogger('general');
+export const providerLog = makeLogger('provider');
+export const managerLog = makeLogger('manager');

@@ -2,8 +2,8 @@ import { Asset, Int64, UInt64 } from '@wharfkit/antelope';
 import type { Static } from 'elysia';
 
 import type { v1PowerupRequestBody, v1PowerupResponse } from '$api/v1/types';
-import { logger } from '$lib/logger';
-import { UsageDatabase } from '$lib/sqlite/db';
+import { providerLog } from '$lib/logger';
+import { UsageDatabase } from '$lib/db/models/provider/usage';
 import { objectify } from '$lib/utils';
 import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
@@ -22,11 +22,11 @@ export async function powerup({
 }): Promise<v1PowerupResponse> {
 	// Check if the account is allowed via the usage database
 	const usage = await db.getUsage(body.account);
-	logger.info('Usage for account', objectify(usage));
+	providerLog.info('Usage for account', objectify(usage));
 
 	// Check if the account needs resources
 	const resources = await getCurrentAccountResources(body.account);
-	logger.info('Current resources for account', objectify(resources));
+	providerLog.info('Current resources for account', objectify(resources));
 
 	// Account does not need resources
 	if (!resources.cpu.lte(minimum_cpu) && !resources.net.lte(minimum_net)) {
@@ -53,7 +53,7 @@ export async function powerup({
 	net_frac.add(powerup.net.frac_by_kb(sampleUsage, 1));
 	net_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
 
-	logger.info('Powerup Calculations', {
+	providerLog.info('Powerup Calculations', {
 		account: body.account,
 		cpu_cost: String(cpu_cost),
 		cpu_frac: Number(cpu_frac),
@@ -85,13 +85,13 @@ export async function powerup({
 			days: 1,
 			max_payment: Asset.fromFloat(1, Bun.env.ANTELOPE_SYSTEM_TOKEN)
 		};
-		logger.info('powerup params', objectify(params));
+		providerLog.info('powerup params', objectify(params));
 
 		const action = systemContract.action('powerup', params);
-		logger.info('powerup action', objectify(action));
+		providerLog.info('powerup action', objectify(action));
 
 		const result = managerSession.transact({ action });
-		logger.info('transaction result', objectify(result));
+		providerLog.info('transaction result', objectify(result));
 	}
 
 	return {

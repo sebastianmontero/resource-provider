@@ -6,8 +6,8 @@ import { BunAdapter } from 'elysia/adapter/bun';
 
 import { v1 } from '$api/v1';
 import { v2 } from '$api/v2';
-import { logger } from '$lib/logger';
-import { UsageDatabase } from '$lib/sqlite/db';
+import { providerLog } from '$lib/logger';
+import { UsageDatabase } from '$lib/db/models/provider/usage';
 
 const usage = new UsageDatabase();
 
@@ -64,6 +64,6 @@ export function server() {
 	app.use(v2);
 	app.listen(port);
 
-	logger.info(`Resource Provider API running on http://localhost:${port}`);
+	providerLog.info(`Resource Provider API running on http://localhost:${port}`);
 	return app;
 }

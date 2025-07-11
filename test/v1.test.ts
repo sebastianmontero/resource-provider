@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'bun:test';
 import type { Elysia } from 'elysia';
 
-import { server } from '../src/server';
+import { server } from '../src/provider';
 
 // Transfer from the signer to null.vaulta
 const mockRequest =

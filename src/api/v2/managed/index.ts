@@ -1,5 +1,4 @@
 import { bearer } from '@elysiajs/bearer';
-import { Asset, Int64, Name } from '@wharfkit/antelope';
 import { Elysia } from 'elysia';
 import type { Static } from 'elysia';
 
@@ -8,23 +7,24 @@ import { guardAuthorization } from '../auth';
 import { v2ManagerAccounts, v2ManagerRequest } from './types';
 import type { v2ManagerRequestBody, v2ManagerResponseSuccess } from './types';
 
-import { ManagedDatabase } from '$lib/sqlite/db';
+import { ManagedAccount, ManagedAccountDatabase } from '$lib/db/models/manager/account';
 
-const db = new ManagedDatabase();
+const db = new ManagedAccountDatabase();
 
 export async function addManagedAccount({
 	body
 }: {
 	body: Static<typeof v2ManagerRequestBody>;
 }): Promise<Static<typeof v2ManagerResponseSuccess>> {
-	db.addManagedAccount({
-		account: Name.from(body.account),
-		min_cpu: Int64.from(body.min_cpu),
-		min_net: Int64.from(body.min_net),
-		inc_ms: Int64.from(body.inc_ms),
-		inc_kb: Int64.from(body.inc_kb),
-		max_fee: Asset.from(body.max_fee)
+	const data = ManagedAccount.from({
+		account: body.account,
+		min_cpu: body.min_cpu,
+		min_net: body.min_net,
+		inc_ms: body.inc_ms,
+		inc_kb: body.inc_kb,
+		max_fee: body.max_fee
 	});
+	db.addManagedAccount(data);
 	return {
 		code: 200,
 		message: 'Account added for management'

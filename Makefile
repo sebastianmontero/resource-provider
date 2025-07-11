@@ -34,6 +34,18 @@ test/watch: deps
 check: deps
 	bun run lint
 
+.PHONY: drizzle/generate
+drizzle/generate: deps
+	bunx drizzle-kit generate
+
+.PHONY: drizzle/migrate
+drizzle/migrate: deps
+	bunx drizzle-kit migrate
+
+.PHONY: drizzle/studio
+drizzle/studio: deps
+	bunx drizzle-kit studio
+
 .PHONY: format
 format: deps
 	bun run format
