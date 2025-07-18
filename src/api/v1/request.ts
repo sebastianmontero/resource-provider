@@ -5,6 +5,7 @@ import type { Static } from 'elysia';
 
 import { v1ResponseResources, v1ResponseTypes, v1ProviderRequestBody } from '$api/v1/types';
 import { providerLog } from '$lib/logger';
+import { objectify } from '$lib/utils';
 import { client } from '$lib/wharf/client';
 import { getProviderSession } from '$lib/wharf/session/provider';
 import { createSigningRequest } from '$lib/wharf/signing-request';
@@ -29,7 +30,7 @@ export function resolvePermissionLevel(signer: PermissionLevelType): PermissionL
 
 export async function getSignerResources(requester: PermissionLevel) {
 	const response = await client.v1.chain.get_account(requester.actor);
-	providerLog.info('data', Serializer.objectify(response));
+	providerLog.info('data', objectify(response));
 	return {
 		cpu: response.cpu_limit.available,
 		net: response.net_limit.available,
@@ -157,7 +158,7 @@ async function handleRequest(
 		data: {
 			request: ['transaction', transaction],
 			resources,
-			signatures: Serializer.objectify(signatures)
+			signatures: objectify(signatures)
 		}
 	};
 }

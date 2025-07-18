@@ -8,8 +8,12 @@ import { server } from '../provider';
 import { makeManagerAddCommand } from './manager/add';
 import { makeManagerListCommand } from './manager/list';
 import { makeManagerRemoveCommand } from './manager/remove';
+import { makeManagerRunCommand } from './manager/run';
+import { makeManagerSetupCommand } from './manager/setup';
 
 import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
+
+const services = ['all', 'api', 'manager'];
 
 export function prompt() {
 	const usage = new UsageDatabase();
@@ -18,13 +22,12 @@ export function prompt() {
 		.version(version)
 		.name('resource-provider')
 		.description('Antelope Resource Provider Service');
-	program.commandsGroup('Service');
+
+	program.commandsGroup('Run Service');
 	program
 		.command('start')
 		.addArgument(
-			new Argument('[service]', 'The service name to start')
-				.default('all')
-				.choices(['all', 'api', 'manager'])
+			new Argument('[service]', 'The service name to start').default('all').choices(services)
 		)
 		.description('Run one or more resource provider services (e.g. all, api, manager)')
 		.action((service) => {
@@ -38,22 +41,19 @@ export function prompt() {
 
 	program.commandsGroup('Resource Manager');
 	const manage = program
-		.command('manage [list|add|remove]')
+		.command('manager [add|list|remove|run|setup]')
 		.description('Manage resources for defined accounts automatically.');
-	manage.addCommand(makeManagerListCommand());
 	manage.addCommand(makeManagerAddCommand());
+	manage.addCommand(makeManagerListCommand());
 	manage.addCommand(makeManagerRemoveCommand());
+	manage.addCommand(makeManagerRunCommand());
+	manage.addCommand(makeManagerSetupCommand());
 
 	// TODO: Implement the permissions command
 	// This command should read the cosigner's account information and determine which permissions are needed
 	// for the cosigner to operate. It then should create a signing request and embed it in a Unicove URL
 	// that can be used to easily update the account.
-	program
-		.command('permissions <service>')
-		.description('Create a signing request to configure account permissions for a specific service')
-		.action(() => {
-			generalLog.warn('Not yet implemented');
-		});
+
 	program.commandsGroup('User Management');
 	program
 		.command('expire')

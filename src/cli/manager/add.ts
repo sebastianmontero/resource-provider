@@ -3,6 +3,7 @@ import { Argument, Command } from 'commander';
 
 import { ManagedAccount, managedAccounts } from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
+import { objectify } from '$lib/utils';
 
 export function makeManagerAddCommand() {
 	const command = new Command('add');
@@ -10,13 +11,13 @@ export function makeManagerAddCommand() {
 		.addArgument(new Argument('<account>', 'The account name to manage'))
 		.addArgument(
 			new Argument(
-				'<min_cpu>',
+				'<min_ms>',
 				'Minimum CPU available for account in milliseconds (e.g. 1 for 1ms/1000µs)'
 			)
 		)
 		.addArgument(
 			new Argument(
-				'<min_net>',
+				'<min_kb>',
 				'Minimum NET available for account in kilobytes (e.g. 1 for 1kB/1000b)'
 			)
 		)
@@ -33,16 +34,16 @@ export function makeManagerAddCommand() {
 			)
 		)
 		.description('Automatically manage CPU/NET resources for an account')
-		.action((account, min_cpu, min_net, inc_ms, inc_kb, max_fee) => {
-			const data = new ManagedAccount({
+		.action((account, min_ms, min_kb, inc_ms, inc_kb, max_fee) => {
+			const data = ManagedAccount.from({
 				account,
-				min_cpu,
-				min_net,
+				min_ms,
+				min_kb,
 				inc_ms,
 				inc_kb,
 				max_fee: String(Asset.fromFloat(Number(max_fee), Bun.env.ANTELOPE_SYSTEM_TOKEN))
 			});
-			managerLog.info('Adding account to manage', data);
+			managerLog.info('Adding account to manage', objectify(data));
 			managedAccounts.addManagedAccount(data);
 		});
 	return command;

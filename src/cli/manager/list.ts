@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 
 import { managedAccounts } from '$lib/db/models/manager/account';
-import { generalLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
 
 export function makeManagerListCommand() {

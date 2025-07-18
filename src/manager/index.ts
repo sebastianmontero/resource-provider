@@ -1,21 +1,23 @@
 import { Asset, Int64, Name } from '@wharfkit/antelope';
 import type { PowerUpState, SampleUsage } from '@wharfkit/resources';
 import type { Session } from '@wharfkit/session';
-import { Cron } from 'croner';
-import type { CronCallback, CronOptions } from 'croner';
+import { Cron, type CronOptions } from 'croner';
 import type { Static } from 'elysia';
 
-import type { v2ManagedAccountType } from '$api/v2/managed/types';
+import type { v2ManagedAccountType } from '$api/v2/manager/types';
+import {
+	ManagedAccount,
+	ManagedAccountDatabase,
+	managedAccounts
+} from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
-import { ManagedAccount, ManagedAccountDatabase } from '$lib/db/models/manager/account';
 import { isENVTrue, objectify } from '$lib/utils';
 import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
 import { getSampledUsage, resourcesClient } from '$lib/wharf/resources';
 import { getManagerSession } from '$lib/wharf/session/manager';
 
-// TODO: Research potentially using https://elysiajs.com/plugins/cron
-const cron = '0/5 * * * * *'; // Every 5 seconds
+const cron = Bun.env.MANAGER_CRONJOB;
 const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
 const enabled = isENVTrue(Bun.env.ENABLE_RESOURCE_MANAGER);
 
@@ -31,76 +33,103 @@ async function manageAccountResources(
 	account: Static<typeof v2ManagedAccountType>,
 	context: ManagerContext
 ) {
-	const managed = new ManagedAccount(account);
-	const resources = await getCurrentAccountResources(managed.account);
+	try {
+		const managed = ManagedAccount.from(account);
+		const resources = await getCurrentAccountResources(managed.account);
 
-	const cpu_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
-	const net_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
+		// Calculate CPU powerup needs
+		const cpu_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
+		const cpu_frac = Int64.from(0);
+		const min_us = managed.min_ms.multiplying(1000);
+		const inc_us = managed.inc_ms.multiplying(1000);
+		if (resources.cpu.lt(min_us)) {
+			managerLog.info(
+				`CPU is below minimum, attempting to powerup ${managed.inc_ms}ms`,
+				objectify({
+					minimum: min_us,
+					current: resources.cpu,
+					increment: inc_us
+				})
+			);
+			const cost = context.powerup.cpu.price_per_ms(context.sampleUsage, Number(managed.inc_ms));
+			cpu_frac.add(context.powerup.cpu.frac_by_ms(context.sampleUsage, Number(managed.inc_ms)));
+			cpu_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
+		}
 
-	const cpu_frac = Int64.from(0);
-	const net_frac = Int64.from(0);
+		// Calculate NET powerup needs
+		const net_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
+		const net_frac = Int64.from(0);
+		const min_bytes = managed.min_kb.multiplying(1000);
+		const inc_bytes = managed.inc_kb.multiplying(1000);
+		if (resources.net.lt(min_bytes)) {
+			managerLog.info(
+				`NET is below minimum, attempting to powerup ${managed.inc_kb}kb`,
+				objectify({
+					minimum: min_bytes,
+					current: resources.net,
+					increment: inc_bytes
+				})
+			);
+			const cost = context.powerup.net.price_per_kb(context.sampleUsage, Number(managed.inc_kb));
+			net_frac.add(context.powerup.net.frac_by_kb(context.sampleUsage, Number(managed.inc_kb)));
+			net_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
+		}
 
-	if (resources.cpu.lte(managed.min_cpu.multiplying(1000))) {
-		managerLog.info(`CPU is below minimum, attempting to powerup ${managed.inc_ms}ms`, {
-			minimum: Number(managed.min_cpu.multiplying(1000)),
-			current: Number(resources.cpu),
-			increment: Number(managed.inc_ms.multiplying(1000))
+		managerLog.debug('Powerup Calculations', {
+			cpu_cost: String(cpu_cost),
+			cpu_frac: Number(cpu_frac),
+			net_cost: String(net_cost),
+			net_frac: Number(net_frac)
 		});
-		const cost = context.powerup.cpu.price_per_ms(context.sampleUsage, Number(managed.inc_ms));
-		cpu_frac.add(context.powerup.cpu.frac_by_ms(context.sampleUsage, Number(managed.inc_ms)));
-		cpu_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
-	}
 
-	if (resources.net.lte(managed.min_net.multiplying(1000))) {
-		managerLog.info(`NET is below minimum, attempting to powerup ${managed.inc_kb}kb`, {
-			minimum: Number(managed.min_net.multiplying(1000)),
-			current: Number(resources.net),
-			increment: Number(managed.inc_kb.multiplying(1000))
-		});
-		const cost = context.powerup.net.price_per_kb(context.sampleUsage, Number(managed.inc_kb));
-		net_frac.add(context.powerup.net.frac_by_kb(context.sampleUsage, Number(managed.inc_kb)));
-		net_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
-	}
+		if (cpu_frac.gt(Int64.from(0)) || net_frac.gt(Int64.from(0))) {
+			const params = {
+				cpu_frac,
+				net_frac,
+				payer: Name.from(manager.actor),
+				receiver: Name.from(managed.account),
+				days: 1,
+				max_payment: managed.max_fee
+			};
 
-	managerLog.debug('Powerup Calculations', {
-		cpu_cost: String(cpu_cost),
-		cpu_frac: Number(cpu_frac),
-		net_cost: String(net_cost),
-		net_frac: Number(net_frac)
-	});
+			const action = systemContract.action('powerup', params);
+			managerLog.info('powerup action to perform', objectify(action));
 
-	if (cpu_frac.gt(Int64.from(0)) || net_frac.gt(Int64.from(0))) {
-		const params = {
-			cpu_frac,
-			net_frac,
-			payer: Name.from(managed.account),
-			receiver: Name.from(managed.account),
-			days: 1,
-			max_payment: managed.max_fee
-		};
-		managerLog.info('powerup params', objectify(params));
-
-		const action = systemContract.action('powerup', params);
-		managerLog.info('powerup action', objectify(action));
+			const result = await manager.transact({ action }, { broadcast: true });
+			managerLog.info('powerup performed', {
+				params: objectify(params),
+				trx_id: String(result.resolved?.transaction.id)
+			});
+		} else {
+			managerLog.info('no powerup required', {
+				account: String(managed.account),
+				resources: objectify(resources)
+			});
+		}
+	} catch (error) {
+		managerLog.error('manageAccountResources failed', { account, error });
 	}
 }
 
 async function getManagerContext(): Promise<ManagerContext> {
-	const db = new ManagedAccountDatabase();
 	return {
-		db,
-		managedAccounts: await db.getManagedAccounts(),
+		db: managedAccounts,
+		managedAccounts: await managedAccounts.getManagedAccounts(),
 		sampleUsage: await getSampledUsage(),
 		powerup: await resourcesClient.v1.powerup.get_state()
 	};
 }
 
-const managerJob: CronCallback = async function (self, context) {
-	const cronContext = context as { manager: Session };
-	const managerContext = await getManagerContext();
-	for (const account of managerContext.managedAccounts) {
-		managerLog.info('Running resource management', { account: objectify(account) });
-		manageAccountResources(cronContext.manager, account, managerContext);
+export const managerJob = async function () {
+	try {
+		const manager = getManagerSession();
+		const managerContext = await getManagerContext();
+		for (const account of managerContext.managedAccounts) {
+			managerLog.info('Running resource management', { account: objectify(account) });
+			manageAccountResources(manager, account, managerContext);
+		}
+	} catch (error) {
+		managerLog.error('managerJob failed', { error });
 	}
 };
 
@@ -113,10 +142,14 @@ export async function manager() {
 			return;
 		}
 
-		const manager = getManagerSession();
-		new Cron(cron, { ...cronOptions, context: { manager } }, managerJob);
+		if (!cron) {
+			managerLog.error('MANAGER_CRONJOB environment variable is not set, cannot start manager.');
+			return;
+		}
+
+		new Cron(cron, { ...cronOptions, catch: true }, managerJob);
 		managerLog.info('Resource Manager Service started', { cron });
 	} catch (error) {
-		managerLog.error(error);
+		managerLog.error('manager failed', { error });
 	}
 }
