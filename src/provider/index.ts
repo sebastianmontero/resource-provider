@@ -6,8 +6,8 @@ import { BunAdapter } from 'elysia/adapter/bun';
 
 import { v1 } from '$api/v1';
 import { v2 } from '$api/v2';
-import { providerLog } from '$lib/logger';
 import { UsageDatabase } from '$lib/db/models/provider/usage';
+import { providerLog } from '$lib/logger';
 
 const usage = new UsageDatabase();
 

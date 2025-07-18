@@ -22,6 +22,10 @@ dev/api: deps
 dev/manager: deps
 	bun run dev/manager
 
+.PHONY: run
+run/manager: deps
+	bun run src/index.ts run manager
+
 .PHONY: test
 test: deps clean/testdb 
 	bun --env-file=./test/.env test
@@ -40,7 +44,7 @@ drizzle/generate: deps
 
 .PHONY: drizzle/migrate
 drizzle/migrate: deps
-	bunx drizzle-kit migrate
+	bunx drizzle-kit migrate && bun run scripts/generate-migration.ts
 
 .PHONY: drizzle/studio
 drizzle/studio: deps

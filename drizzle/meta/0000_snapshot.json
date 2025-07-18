@@ -14,15 +14,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "min_cpu": {
-          "name": "min_cpu",
+        "min_ms": {
+          "name": "min_ms",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "min_net": {
-          "name": "min_net",
+        "min_kb": {
+          "name": "min_kb",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

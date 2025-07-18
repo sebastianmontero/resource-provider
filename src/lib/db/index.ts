@@ -5,8 +5,8 @@ import { generalLog } from '$lib/logger';
 
 const _dirname =
 	import.meta.dir.startsWith('/$bunfs/root') || import.meta.dir.startsWith('B:\\~BUN\\root')
-		? `${process.execPath}/..`
-		: import.meta.dir;
+		? `${process.execPath}/..` // bun binary location
+		: `${import.meta.dir}/../../..`; // root of the project
 
 export const dbPath = `${_dirname}/${Bun.env.DATABASE_FILE}`;
 
