@@ -11,6 +11,7 @@ import {
 	managedAccounts
 } from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
+import { checkManagerAccount } from '$lib/manager/setup';
 import { isENVTrue, objectify } from '$lib/utils';
 import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
@@ -18,6 +19,7 @@ import { getSampledUsage, resourcesClient } from '$lib/wharf/resources';
 import { getManagerSession } from '$lib/wharf/session/manager';
 import { ANTELOPE_SYSTEM_TOKEN, ENABLE_RESOURCE_MANAGER, MANAGER_CRONJOB } from 'src/config';
 
+const cron = MANAGER_CRONJOB;
 const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
 const enabled = isENVTrue(ENABLE_RESOURCE_MANAGER);
 
@@ -123,6 +125,13 @@ async function getManagerContext(): Promise<ManagerContext> {
 export const managerJob = async function () {
 	try {
 		const manager = getManagerSession();
+		const status = await checkManagerAccount(manager);
+		if (status.requiresLinkAuth || status.requiresUpdateAuth) {
+			managerLog.error(
+				'The manager account permissions are not configured. Run the "manager setup" command to update the account with the proper permissions.'
+			);
+			process.exit();
+		}
 		const managerContext = await getManagerContext();
 		for (const account of managerContext.managedAccounts) {
 			managerLog.info('Running resource management', { account: objectify(account) });
@@ -139,11 +148,6 @@ export async function manager() {
 			managerLog.info(
 				'Resource Manager Service is disabled. Set ENABLE_RESOURCE_MANAGER=true if you wish to run this service.'
 			);
-			return;
-		}
-
-		if (!cron) {
-			managerLog.error('MANAGER_CRONJOB environment variable is not set, cannot start manager.');
 			return;
 		}
 
