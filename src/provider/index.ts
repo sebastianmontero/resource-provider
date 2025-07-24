@@ -8,10 +8,11 @@ import { v1 } from '$api/v1';
 import { v2 } from '$api/v2';
 import { UsageDatabase } from '$lib/db/models/provider/usage';
 import { providerLog } from '$lib/logger';
+import { SERVICE_HTTP_PORT } from 'src/config';
 
 const usage = new UsageDatabase();
 
-const port = Bun.env.SERVICE_HTTP_PORT || 3000;
+const port = SERVICE_HTTP_PORT || 3000;
 
 const swaggerConfig: ElysiaSwaggerConfig = {
 	documentation: {
@@ -62,7 +63,7 @@ export function server() {
 	app.decorate('usage', usage);
 	app.use(v1);
 	app.use(v2);
-	app.listen(port);
+	app.listen(SERVICE_HTTP_PORT);
 
 	providerLog.info(`Resource Provider API running on http://localhost:${port}`);
 	return app;

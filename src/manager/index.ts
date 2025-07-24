@@ -16,10 +16,10 @@ import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
 import { getSampledUsage, resourcesClient } from '$lib/wharf/resources';
 import { getManagerSession } from '$lib/wharf/session/manager';
+import { ANTELOPE_SYSTEM_TOKEN, ENABLE_RESOURCE_MANAGER, MANAGER_CRONJOB } from 'src/config';
 
-const cron = Bun.env.MANAGER_CRONJOB;
 const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
-const enabled = isENVTrue(Bun.env.ENABLE_RESOURCE_MANAGER);
+const enabled = isENVTrue(ENABLE_RESOURCE_MANAGER);
 
 interface ManagerContext {
 	db: ManagedAccountDatabase;
@@ -38,7 +38,7 @@ async function manageAccountResources(
 		const resources = await getCurrentAccountResources(managed.account);
 
 		// Calculate CPU powerup needs
-		const cpu_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
+		const cpu_cost = Asset.from(0, ANTELOPE_SYSTEM_TOKEN);
 		const cpu_frac = Int64.from(0);
 		const min_us = managed.min_ms.multiplying(1000);
 		const inc_us = managed.inc_ms.multiplying(1000);
@@ -53,11 +53,11 @@ async function manageAccountResources(
 			);
 			const cost = context.powerup.cpu.price_per_ms(context.sampleUsage, Number(managed.inc_ms));
 			cpu_frac.add(context.powerup.cpu.frac_by_ms(context.sampleUsage, Number(managed.inc_ms)));
-			cpu_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
+			cpu_cost.units.add(Asset.fromFloat(cost, ANTELOPE_SYSTEM_TOKEN).units);
 		}
 
 		// Calculate NET powerup needs
-		const net_cost = Asset.from(0, Bun.env.ANTELOPE_SYSTEM_TOKEN);
+		const net_cost = Asset.from(0, ANTELOPE_SYSTEM_TOKEN);
 		const net_frac = Int64.from(0);
 		const min_bytes = managed.min_kb.multiplying(1000);
 		const inc_bytes = managed.inc_kb.multiplying(1000);
@@ -72,7 +72,7 @@ async function manageAccountResources(
 			);
 			const cost = context.powerup.net.price_per_kb(context.sampleUsage, Number(managed.inc_kb));
 			net_frac.add(context.powerup.net.frac_by_kb(context.sampleUsage, Number(managed.inc_kb)));
-			net_cost.units.add(Asset.fromFloat(cost, Bun.env.ANTELOPE_SYSTEM_TOKEN).units);
+			net_cost.units.add(Asset.fromFloat(cost, ANTELOPE_SYSTEM_TOKEN).units);
 		}
 
 		managerLog.debug('Powerup Calculations', {

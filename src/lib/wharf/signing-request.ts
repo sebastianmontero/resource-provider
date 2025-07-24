@@ -6,8 +6,9 @@ import type { Static } from 'elysia';
 import type { v1ProviderRequestBody } from '$api/v1/types';
 import { generalLog } from '$lib/logger';
 import type { TPackedTransaction, TTransaction } from '$lib/types';
+import { ANTELOPE_NODEOS_API } from 'src/config';
 
-const cache = new ABICache(new APIClient({ url: Bun.env.ANTELOPE_NODEOS_API }));
+const cache = new ABICache(new APIClient({ url: ANTELOPE_NODEOS_API }));
 
 export const opts = {
 	zlib: {

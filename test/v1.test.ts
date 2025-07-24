@@ -3,6 +3,8 @@ import type { Elysia } from 'elysia';
 
 import { server } from '../src/provider';
 
+import { PROVIDER_ACCOUNT_NAME, PROVIDER_ACCOUNT_PERMISSION } from 'src/config';
+
 // Transfer from the signer to null.vaulta
 const mockRequest =
 	'esr://gmNgZGBY1mTC_MoglIGBIVzX5uxZRqAQGDBBaWeYABgAVcL4LK7-wSBaKSi1OL-0KDlVoaAovywzJbVIoSS1uEShpCgxrzgxuSQzPw-oBQA';
@@ -116,8 +118,8 @@ describe('v1/resource_provider/request_transaction', () => {
 		it('will not process when signer equals cosigner', async () => {
 			const request = makeRequest('/v1/resource_provider/request_transaction', {
 				signer: {
-					actor: Bun.env.PROVIDER_ACCOUNT_NAME,
-					permission: Bun.env.PROVIDER_ACCOUNT_PERMISSION
+					actor: PROVIDER_ACCOUNT_NAME,
+					permission: PROVIDER_ACCOUNT_PERMISSION
 				},
 				request: mockRequest
 			});

@@ -1,5 +1,5 @@
 import type { API, PermissionLevelType, TransactionHeader } from '@wharfkit/antelope';
-import { Name, PermissionLevel, Serializer, Transaction } from '@wharfkit/antelope';
+import { Name, PermissionLevel, Transaction } from '@wharfkit/antelope';
 import type { ResolvedSigningRequest, SigningRequest } from '@wharfkit/signing-request';
 import type { Static } from 'elysia';
 
@@ -9,10 +9,11 @@ import { objectify } from '$lib/utils';
 import { client } from '$lib/wharf/client';
 import { getProviderSession } from '$lib/wharf/session/provider';
 import { createSigningRequest } from '$lib/wharf/signing-request';
+import { PROVIDER_ACCOUNT_NAME, PROVIDER_ACCOUNT_PERMISSION } from 'src/config';
 
 const cosigner = PermissionLevel.from({
-	actor: Bun.env.PROVIDER_ACCOUNT_NAME,
-	permission: Bun.env.PROVIDER_ACCOUNT_PERMISSION
+	actor: PROVIDER_ACCOUNT_NAME,
+	permission: PROVIDER_ACCOUNT_PERMISSION
 });
 
 export function resolvePermissionLevel(signer: PermissionLevelType): PermissionLevel {

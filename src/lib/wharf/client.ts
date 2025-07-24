@@ -3,8 +3,9 @@ import type { NameType } from '@wharfkit/antelope';
 
 import { generalLog } from '$lib/logger';
 import type { AccountResources } from '$lib/types';
+import { ANTELOPE_NODEOS_API } from 'src/config';
 
-export const client = new APIClient({ url: Bun.env.ANTELOPE_NODEOS_API });
+export const client = new APIClient({ url: ANTELOPE_NODEOS_API });
 
 export async function getCurrentAccountResources(account: NameType): Promise<AccountResources> {
 	const result = await client.v1.chain.get_account(account);

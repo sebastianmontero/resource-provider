@@ -3,10 +3,12 @@ import { Resources } from '@wharfkit/resources';
 import { generalLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
 import { client } from '$lib/wharf/client';
+import { ANTELOPE_SAMPLE_ACCOUNT } from 'src/config';
 
-const sampleAccount = Bun.env.ANTELOPE_SAMPLE_ACCOUNT || 'eosio.reserv';
-
-export const resourcesClient = new Resources({ api: client, sampleAccount });
+export const resourcesClient = new Resources({
+	api: client,
+	sampleAccount: ANTELOPE_SAMPLE_ACCOUNT
+});
 
 export async function getSampledUsage() {
 	const usage = await resourcesClient.getSampledUsage();

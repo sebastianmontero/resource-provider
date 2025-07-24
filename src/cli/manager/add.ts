@@ -4,6 +4,7 @@ import { Argument, Command } from 'commander';
 import { ManagedAccount, managedAccounts } from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
+import { ANTELOPE_SYSTEM_TOKEN } from 'src/config';
 
 export function makeManagerAddCommand() {
 	const command = new Command('add');
@@ -30,7 +31,7 @@ export function makeManagerAddCommand() {
 		.addArgument(
 			new Argument(
 				'<max_fee>',
-				`Maximum fee the provider can charge for a single powerup (e.g. 1 for ${Asset.fromFloat(1, Bun.env.ANTELOPE_SYSTEM_TOKEN)})`
+				`Maximum fee the provider can charge for a single powerup (e.g. 1 for ${Asset.fromFloat(1, ANTELOPE_SYSTEM_TOKEN)})`
 			)
 		)
 		.description('Automatically manage CPU/NET resources for an account')
@@ -41,7 +42,7 @@ export function makeManagerAddCommand() {
 				min_kb,
 				inc_ms,
 				inc_kb,
-				max_fee: String(Asset.fromFloat(Number(max_fee), Bun.env.ANTELOPE_SYSTEM_TOKEN))
+				max_fee: String(Asset.fromFloat(Number(max_fee), ANTELOPE_SYSTEM_TOKEN))
 			});
 			managerLog.info('Adding account to manage', objectify(data));
 			managedAccounts.addManagedAccount(data);
