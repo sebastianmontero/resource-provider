@@ -43,14 +43,13 @@ async function manageAccountResources(
 		const cpu_cost = Asset.from(0, ANTELOPE_SYSTEM_TOKEN);
 		const cpu_frac = Int64.from(0);
 		const min_us = managed.min_ms.multiplying(1000);
-		const inc_us = managed.inc_ms.multiplying(1000);
 		if (resources.cpu.lt(min_us)) {
 			managerLog.info(
 				`CPU is below minimum, attempting to powerup ${managed.inc_ms}ms`,
 				objectify({
-					minimum: min_us,
-					current: resources.cpu,
-					increment: inc_us
+					minimum_us: min_us,
+					current_us: resources.cpu,
+					increment_us: managed.inc_ms.multiplying(1000)
 				})
 			);
 			const cost = context.powerup.cpu.price_per_ms(context.sampleUsage, Number(managed.inc_ms));
@@ -62,14 +61,13 @@ async function manageAccountResources(
 		const net_cost = Asset.from(0, ANTELOPE_SYSTEM_TOKEN);
 		const net_frac = Int64.from(0);
 		const min_bytes = managed.min_kb.multiplying(1000);
-		const inc_bytes = managed.inc_kb.multiplying(1000);
 		if (resources.net.lt(min_bytes)) {
 			managerLog.info(
 				`NET is below minimum, attempting to powerup ${managed.inc_kb}kb`,
 				objectify({
-					minimum: min_bytes,
-					current: resources.net,
-					increment: inc_bytes
+					minimum_bytes: min_bytes,
+					current_bytes: resources.net,
+					increment_bytes: managed.inc_kb.multiplying(1000)
 				})
 			);
 			const cost = context.powerup.net.price_per_kb(context.sampleUsage, Number(managed.inc_kb));
@@ -95,16 +93,24 @@ async function manageAccountResources(
 			};
 
 			const action = systemContract.action('powerup', params);
-			managerLog.info('powerup action to perform', objectify(action));
+			managerLog.debug('powerup action to perform', objectify(action));
 
-			const result = await manager.transact({ action }, { broadcast: true });
-			managerLog.info('powerup performed', {
-				params: objectify(params),
-				trx_id: String(result.resolved?.transaction.id)
-			});
+			manager
+				.transact({ action }, { broadcast: true })
+				.then((result) => {
+					managerLog.info('powerup successful', {
+						params: objectify(params),
+						trx_id: String(result.resolved?.transaction.id)
+					});
+				})
+				.catch((error) => {
+					managerLog.error('powerup failed', {
+						error
+					});
+				});
 		} else {
-			managerLog.info('no powerup required', {
-				account: String(managed.account),
+			managerLog.debug('no powerup required', {
+				account: objectify(managed),
 				resources: objectify(resources)
 			});
 		}
