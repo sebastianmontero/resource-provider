@@ -11,11 +11,6 @@ import { getProviderSession } from '$lib/wharf/session/provider';
 import { createSigningRequest } from '$lib/wharf/signing-request';
 import { PROVIDER_ACCOUNT_NAME, PROVIDER_ACCOUNT_PERMISSION } from 'src/config';
 
-const cosigner = PermissionLevel.from({
-	actor: PROVIDER_ACCOUNT_NAME,
-	permission: PROVIDER_ACCOUNT_PERMISSION
-});
-
 export function resolvePermissionLevel(signer: PermissionLevelType): PermissionLevel {
 	if (!signer.actor || String(Name.from(signer.actor)) !== signer.actor) {
 		throw new Error('Invalid actor in signer');
@@ -107,7 +102,7 @@ async function resolveTransaction(
 	return Transaction.from(resolved.transaction);
 }
 
-function validateRequest(request: SigningRequest): void {
+function validateRequest(cosigner: PermissionLevel, request: SigningRequest): void {
 	const actions = request.getRawActions();
 	providerLog.debug('actions', JSON.stringify(actions));
 
@@ -124,7 +119,7 @@ function validateRequest(request: SigningRequest): void {
 	}
 }
 
-function validateRequester(requester: PermissionLevel): void {
+function validateRequester(cosigner: PermissionLevel, requester: PermissionLevel): void {
 	// Refuse to sign requests where the requestor is the same as the cosigner
 	if (requester.actor.equals(cosigner.actor)) {
 		throw new Error('Signer cannot be the cosigner.');
@@ -135,9 +130,14 @@ async function handleRequest(
 	request: SigningRequest,
 	requester: PermissionLevel
 ): Promise<v1ResponseTypes> {
+	const cosigner = PermissionLevel.from({
+		actor: PROVIDER_ACCOUNT_NAME,
+		permission: PROVIDER_ACCOUNT_PERMISSION
+	});
+
 	// Validate the request and requester
-	validateRequest(request);
-	validateRequester(requester);
+	validateRequest(cosigner, request);
+	validateRequester(cosigner, requester);
 
 	// Create a transaction to modify and use in the response
 	const transaction = await resolveTransaction(request, requester);
