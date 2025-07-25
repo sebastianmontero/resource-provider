@@ -5,6 +5,7 @@ import { managerLog } from '$lib/logger';
 import { checkManagerAccount, makeLinkAuthAction, makeUpdateAuthAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
 import { getManagerSession } from '$lib/wharf/session/manager';
+import { ANTELOPE_CHAIN_ID, explorers } from 'src/config';
 
 export function makeManagerSetupCommand() {
 	const command = new Command('setup')
@@ -19,6 +20,13 @@ export function makeManagerSetupCommand() {
 			}
 			if (status.requiresLinkAuth) {
 				actions.push(makeLinkAuthAction(manager));
+			}
+
+			if (!actions.length) {
+				console.log(
+					'Setup not required. Manager account is already configured with the required permissions.'
+				);
+				return;
 			}
 
 			managerLog.debug(
@@ -37,7 +45,13 @@ export function makeManagerSetupCommand() {
 			console.log(
 				'Complete the following transaction setup the permissions on the manager account:'
 			);
-			console.log(request.encode());
+
+			if (explorers[ANTELOPE_CHAIN_ID]) {
+				console.log(`${explorers[ANTELOPE_CHAIN_ID]}/prompt/${request.encode(false, false, '')}`);
+				console.log(request.encode());
+			} else {
+				console.log(request.encode());
+			}
 		});
 	return command;
 }

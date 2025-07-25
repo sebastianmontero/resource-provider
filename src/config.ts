@@ -150,3 +150,11 @@ if (ENABLE_PAID_TRANSACTIONS) {
 		);
 	}
 }
+
+export const explorers: Record<string, string> = {
+	aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906: 'https://unicove.com',
+	'73e4385a2708e6d7048834fbc1079f2fabb17b3c125b146af438971e90716c4d': 'https://jungle4.unicove.com',
+	'4667b205c6838ef70ff7988f6e8257e8be0e1284a2f59699054a018f743b1d11': 'https://telos.unicove.com',
+	'1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4': 'https://wax.unicove.com',
+	'5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191': 'https://kylin.unicove.com'
+};
