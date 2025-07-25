@@ -22,26 +22,26 @@ export class UsageDatabase extends AbstractDatabase {
 	// 	);
 	// }
 
-	async getUsage(account: string): Promise<{ usage: number }> {
-		return { usage: 1 };
-		// return this.db
-		// 	.query(`SELECT COALESCE(sum(usage), 0) as usage FROM usage WHERE account = ?`)
-		// 	.get(account) as { usage: number };
-	}
+	// async getUsage(account: string): Promise<{ usage: number }> {
+	// 	return { usage: 1 };
+	// 	// return this.db
+	// 	// 	.query(`SELECT COALESCE(sum(usage), 0) as usage FROM usage WHERE account = ?`)
+	// 	// 	.get(account) as { usage: number };
+	// }
 
-	async addUsage(account: string, usage: number) {
-		this.cleanUsage(); // Clean up old usage before adding new
-		// return this.db.run(`INSERT INTO usage (account, usage) VALUES (?, ?) RETURNING id`, [
-		// 	account,
-		// 	usage
-		// ]);
-	}
+	// async addUsage(account: string, usage: number) {
+	// 	this.cleanUsage(); // Clean up old usage before adding new
+	// 	// return this.db.run(`INSERT INTO usage (account, usage) VALUES (?, ?) RETURNING id`, [
+	// 	// 	account,
+	// 	// 	usage
+	// 	// ]);
+	// }
 
-	async resetUsage(account: string) {
-		// return this.db.prepare(`DELETE FROM usage WHERE account = ?`).run(account);
-	}
+	// async resetUsage(account: string) {
+	// 	// return this.db.prepare(`DELETE FROM usage WHERE account = ?`).run(account);
+	// }
 
-	async cleanUsage(ttl: number = this.ttl) {
-		// return this.db.prepare(`DELETE FROM usage WHERE ts < (unixepoch() - ?) LIMIT 100`).run(ttl);
-	}
+	// async cleanUsage(ttl: number = this.ttl) {
+	// 	// return this.db.prepare(`DELETE FROM usage WHERE ts < (unixepoch() - ?) LIMIT 100`).run(ttl);
+	// }
 }
