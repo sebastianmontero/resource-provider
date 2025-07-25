@@ -12,7 +12,7 @@ import {
 } from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
 import { checkManagerAccount } from '$lib/manager/setup';
-import { isENVTrue, objectify } from '$lib/utils';
+import { objectify } from '$lib/utils';
 import { getCurrentAccountResources } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
 import { getSampledUsage, resourcesClient } from '$lib/wharf/resources';
@@ -21,7 +21,6 @@ import { ANTELOPE_SYSTEM_TOKEN, ENABLE_RESOURCE_MANAGER, MANAGER_CRONJOB } from 
 
 const cron = MANAGER_CRONJOB;
 const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
-const enabled = isENVTrue(ENABLE_RESOURCE_MANAGER);
 
 interface ManagerContext {
 	db: ManagedAccountDatabase;
@@ -149,17 +148,17 @@ export const managerJob = async function () {
 };
 
 export async function manager() {
-	try {
-		if (!enabled) {
-			managerLog.info(
-				'Resource Manager Service is disabled. Set ENABLE_RESOURCE_MANAGER=true if you wish to run this service.'
-			);
-			return;
-		}
-
-		new Cron(cron, { ...cronOptions, catch: true }, managerJob);
-		managerLog.info('Resource Manager Service started', { cron });
-	} catch (error) {
-		managerLog.error('manager failed', { error });
+	if (!ENABLE_RESOURCE_MANAGER) {
+		managerLog.info(
+			'Resource Manager Service is disabled. Set ENABLE_RESOURCE_MANAGER=true if you wish to run this service.'
+		);
+		return;
 	}
+
+	managerLog.info('Resource Manager Service starting', { cron, cronOptions });
+	// Run immediately
+	managerJob();
+
+	// Schedule the cron job
+	new Cron(cron, cronOptions, managerJob);
 }
