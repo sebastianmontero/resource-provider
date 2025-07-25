@@ -1,40 +1,53 @@
 import { createLogger, format, transports } from 'winston';
 
-const { simple, metadata, combine, timestamp, printf, prettyPrint } = format;
+import { SERVICE_INFO_LOG, SERVICE_LOG_LEVEL, SERVICE_ERROR_LOG, ENVIRONMENT } from 'src/config';
+
+const { metadata, combine, timestamp, printf, prettyPrint, label } = format;
 
 type TransportTypes = transports.ConsoleTransportInstance | transports.FileTransportInstance;
 
 const defaultTransports: TransportTypes[] = [new transports.Console()];
 
-const logformat = printf(({ level, message, timestamp }) => {
-	return `${timestamp} ${level}: ${message}`;
+const logformat = printf(({ label, level, message, timestamp, ...rest }) => {
+	return `${timestamp} ${label} ${level}: ${message} ${JSON.stringify({ ...rest })}`;
 });
 
-if (Bun.env.SERVICE_INFO_LOG) {
+if (SERVICE_INFO_LOG) {
 	defaultTransports.push(
 		new transports.File({
-			level: Bun.env.SERVICE_LOG_LEVEL || 'info',
-			filename: Bun.env.SERVICE_INFO_LOG,
+			level: SERVICE_LOG_LEVEL || 'info',
+			filename: SERVICE_INFO_LOG,
 			format: logformat
 		})
 	);
 }
 
-if (Bun.env.SERVICE_ERROR_LOG) {
+if (SERVICE_ERROR_LOG) {
 	defaultTransports.push(
 		new transports.File({
 			level: 'error',
-			filename: Bun.env.SERVICE_ERROR_LOG,
+			filename: SERVICE_ERROR_LOG,
 			format: logformat
 		})
 	);
 }
 
-export const logger = createLogger({
-	level: Bun.env.SERVICE_LOG_LEVEL || 'info',
-	format:
-		Bun.env.SERVICE_ENVIRONMENT === 'development'
-			? combine(metadata({ key: 'data' }), timestamp(), prettyPrint({ colorize: true, depth: 10 }))
-			: combine(timestamp(), simple()),
-	transports: defaultTransports
-});
+function makeLogger(labelName: string) {
+	return createLogger({
+		level: SERVICE_LOG_LEVEL || 'info',
+		format:
+			ENVIRONMENT === 'development'
+				? combine(
+						label({ label: labelName }),
+						metadata({ key: 'data' }),
+						timestamp(),
+						prettyPrint({ colorize: true, depth: 10 })
+					)
+				: combine(label({ label: labelName }), timestamp(), logformat),
+		transports: defaultTransports
+	});
+}
+
+export const generalLog = makeLogger('general');
+export const providerLog = makeLogger('provider');
+export const managerLog = makeLogger('manager');

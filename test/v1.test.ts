@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from 'bun:test';
 import type { Elysia } from 'elysia';
 
-import { server } from '../src/server';
+import { server } from '../src/provider';
+
+import { PROVIDER_ACCOUNT_NAME, PROVIDER_ACCOUNT_PERMISSION } from 'src/config';
 
 // Transfer from the signer to null.vaulta
 const mockRequest =
@@ -116,8 +118,8 @@ describe('v1/resource_provider/request_transaction', () => {
 		it('will not process when signer equals cosigner', async () => {
 			const request = makeRequest('/v1/resource_provider/request_transaction', {
 				signer: {
-					actor: Bun.env.PROVIDER_ACCOUNT_NAME,
-					permission: Bun.env.PROVIDER_ACCOUNT_PERMISSION
+					actor: PROVIDER_ACCOUNT_NAME,
+					permission: PROVIDER_ACCOUNT_PERMISSION
 				},
 				request: mockRequest
 			});

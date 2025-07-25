@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 
-import { managed } from './managed';
+import { managed } from './manager';
 import { provider } from './provider';
 
 export const v2 = new Elysia()

@@ -6,12 +6,13 @@ import { BunAdapter } from 'elysia/adapter/bun';
 
 import { v1 } from '$api/v1';
 import { v2 } from '$api/v2';
-import { logger } from '$lib/logger';
-import { UsageDatabase } from '$lib/sqlite/db';
+import { UsageDatabase } from '$lib/db/models/provider/usage';
+import { providerLog } from '$lib/logger';
+import { ENABLE_RESOURCE_PROVIDER, SERVICE_HTTP_PORT } from 'src/config';
 
 const usage = new UsageDatabase();
 
-const port = Bun.env.SERVICE_HTTP_PORT || 3000;
+const port = SERVICE_HTTP_PORT || 3000;
 
 const swaggerConfig: ElysiaSwaggerConfig = {
 	documentation: {
@@ -52,6 +53,13 @@ const swaggerConfig: ElysiaSwaggerConfig = {
 };
 
 export function server() {
+	if (!ENABLE_RESOURCE_PROVIDER) {
+		providerLog.info(
+			'Resource Provider API Service is disabled. Set ENABLE_RESOURCE_PROVIDER=true if you wish to run this service.'
+		);
+		return;
+	}
+
 	const app = new Elysia({
 		adapter: BunAdapter,
 		aot: true
@@ -62,8 +70,8 @@ export function server() {
 	app.decorate('usage', usage);
 	app.use(v1);
 	app.use(v2);
-	app.listen(port);
+	app.listen(SERVICE_HTTP_PORT);
 
-	logger.info(`Resource Provider API running on http://localhost:${port}`);
+	providerLog.info(`Resource Provider API running on http://localhost:${port}`);
 	return app;
 }

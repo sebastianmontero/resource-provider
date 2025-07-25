@@ -4,10 +4,11 @@ import { SigningRequest } from '@wharfkit/signing-request';
 import type { Static } from 'elysia';
 
 import type { v1ProviderRequestBody } from '$api/v1/types';
-import { logger } from '$lib/logger';
+import { generalLog } from '$lib/logger';
 import type { TPackedTransaction, TTransaction } from '$lib/types';
+import { ANTELOPE_NODEOS_API } from 'src/config';
 
-const cache = new ABICache(new APIClient({ url: Bun.env.ANTELOPE_NODEOS_API }));
+const cache = new ABICache(new APIClient({ url: ANTELOPE_NODEOS_API }));
 
 export const opts = {
 	zlib: {
@@ -18,7 +19,7 @@ export const opts = {
 };
 
 export async function createSigningRequestFromString(request: string): Promise<SigningRequest> {
-	logger.debug('createSigningRequestFromString', { request });
+	generalLog.debug('createSigningRequestFromString', { request });
 	let payload = request;
 	if (!request.startsWith('esr:')) {
 		payload = 'esr://' + request;
@@ -29,7 +30,7 @@ export async function createSigningRequestFromString(request: string): Promise<S
 export async function createSigningRequestFromPackedTransaction(
 	packedTransaction: Static<typeof TPackedTransaction>
 ): Promise<SigningRequest> {
-	logger.debug('createSigningRequestFromPackedTransaction', { packedTransaction });
+	generalLog.debug('createSigningRequestFromPackedTransaction', { packedTransaction });
 	const decoded = PackedTransaction.from(packedTransaction);
 	return await SigningRequest.create(
 		{
@@ -42,7 +43,7 @@ export async function createSigningRequestFromPackedTransaction(
 export async function createSigningRequestFromTransaction(
 	transaction: Static<typeof TTransaction>
 ): Promise<SigningRequest> {
-	logger.debug('createSigningRequestFromTransaction', { transaction });
+	generalLog.debug('createSigningRequestFromTransaction', { transaction });
 	const contracts = transaction.actions.map((action) => Name.from(action.account));
 	const abis = await Promise.all(
 		contracts.map(async (account) => ({
@@ -61,7 +62,7 @@ export async function createSigningRequestFromTransaction(
 export async function createSigningRequest(
 	body: Static<typeof v1ProviderRequestBody>
 ): Promise<SigningRequest> {
-	logger.debug('createSigningRequest', { body });
+	generalLog.debug('createSigningRequest', { body });
 	try {
 		// EEP-8 Specification: Process based on ESR payload
 		if (body.request) {

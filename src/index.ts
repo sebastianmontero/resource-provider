@@ -1,11 +1,15 @@
 import { prompt } from './cli';
-import { server } from './server';
+import { ENVIRONMENT } from './config';
+import { server } from './provider';
 
-import { logger } from '$lib/logger';
+import { runMigrations } from '$lib/db/migrate';
+import { generalLog } from '$lib/logger';
 
-if (Bun.env.ENVIRONMENT === 'testing') {
+runMigrations();
+
+if (ENVIRONMENT === 'testing') {
 	// Automatically start the server in testing environment
-	logger.debug('Starting server in testing environment...');
+	generalLog.debug('Starting server in testing environment...');
 	server();
 } else {
 	// Otherwise use prompt for CLI commands

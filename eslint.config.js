@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier/flat';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import drizzle from 'eslint-plugin-drizzle';
 import eslintPlugin from 'eslint-plugin-eslint-plugin';
 import { flatConfigs } from 'eslint-plugin-import-x';
 import json from 'eslint-plugin-json';
@@ -23,7 +24,8 @@ export default config([
 	eslintPrettier,
 	{
 		plugins: {
-			'eslint-plugin': eslintPlugin
+			'eslint-plugin': eslintPlugin,
+			drizzle
 		},
 		settings: {
 			'import-x/resolver-next': [
