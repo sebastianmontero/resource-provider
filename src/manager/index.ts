@@ -138,6 +138,12 @@ export const managerJob = async function () {
 			process.exit();
 		}
 		const managerContext = await getManagerContext();
+		if (!managerContext.managedAccounts.length) {
+			managerLog.info(
+				'Manager skipped because no managed accounts found. Add accounts using the "manager add" command or through the API.'
+			);
+			return;
+		}
 		for (const account of managerContext.managedAccounts) {
 			managerLog.info('Running resource management', { account: objectify(account) });
 			manageAccountResources(manager, account, managerContext);
