@@ -26,6 +26,10 @@ export function makeManagerSetupCommand() {
 				console.log(
 					'Setup not required. Manager account is already configured with the required permissions.'
 				);
+				console.log('\n');
+				console.log('View current account permissions on Unicove using the URL below:');
+				console.log('\n');
+				console.log(`${explorers[ANTELOPE_CHAIN_ID]}/account/${manager.actor}/permissions`);
 				return;
 			}
 
@@ -45,12 +49,11 @@ export function makeManagerSetupCommand() {
 			console.log(
 				'Complete the following transaction setup the permissions on the manager account:'
 			);
-
+			console.log('\n');
 			if (explorers[ANTELOPE_CHAIN_ID]) {
 				console.log(`${explorers[ANTELOPE_CHAIN_ID]}/prompt/${request.encode(false, false, '')}`);
-				console.log(request.encode());
 			} else {
-				console.log(request.encode());
+				console.log(`Using Anchor: ${request.encode()}`);
 			}
 		});
 	return command;
