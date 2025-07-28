@@ -20,7 +20,7 @@ import { getManagerSession } from '$lib/wharf/session/manager';
 import { ANTELOPE_SYSTEM_TOKEN, ENABLE_RESOURCE_MANAGER, MANAGER_CRONJOB } from 'src/config';
 
 const cron = MANAGER_CRONJOB;
-const cronOptions: CronOptions = { catch: (e) => managerLog.error(e) };
+const cronOptions: CronOptions = { catch: (e) => managerLog.error(e), protect: true };
 
 interface ManagerContext {
 	db: ManagedAccountDatabase;
