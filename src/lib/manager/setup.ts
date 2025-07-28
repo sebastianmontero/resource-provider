@@ -68,3 +68,20 @@ export function makeLinkAuthAction(manager: Session) {
 	};
 	return systemContract.action('linkauth', params);
 }
+
+export function makeDeleteAuthAction(manager: Session) {
+	const params = {
+		account: manager.actor,
+		permission: manager.permission
+	};
+	return systemContract.action('deleteauth', params);
+}
+
+export function makeUnlinkAuthAction(manager: Session) {
+	const params = {
+		account: manager.actor,
+		code: ANTELOPE_SYSTEM_CONTRACT,
+		type: 'powerup'
+	};
+	return systemContract.action('unlinkauth', params);
+}

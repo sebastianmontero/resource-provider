@@ -6,6 +6,7 @@ import { manager } from '../manager';
 import { server } from '../provider';
 
 import { makeManagerAddCommand } from './manager/add';
+import { makeManagerDeleteCommand } from './manager/delete';
 import { makeManagerListCommand } from './manager/list';
 import { makeManagerRemoveCommand } from './manager/remove';
 import { makeManagerRunCommand } from './manager/run';
@@ -41,13 +42,14 @@ export function prompt() {
 
 	program.commandsGroup('Resource Manager');
 	const manage = program
-		.command('manager [add|list|remove|run|setup]')
+		.command('manager [add|list|remove|run|setup|delete]')
 		.description('Manage resources for defined accounts automatically.');
 	manage.addCommand(makeManagerAddCommand());
 	manage.addCommand(makeManagerListCommand());
 	manage.addCommand(makeManagerRemoveCommand());
 	manage.addCommand(makeManagerRunCommand());
 	manage.addCommand(makeManagerSetupCommand());
+	manage.addCommand(makeManagerDeleteCommand());
 
 	// TODO: Implement the permissions command
 	// This command should read the cosigner's account information and determine which permissions are needed
