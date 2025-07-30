@@ -1,7 +1,6 @@
 import { Asset, Int64, Name } from '@wharfkit/antelope';
 import { PowerUpState, SampleUsage } from '@wharfkit/resources';
 
-import { ActionParams } from '$lib/contracts/system';
 import { managerLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
 import { ANTELOPE_SYSTEM_TOKEN } from 'src/config';
@@ -52,7 +51,7 @@ export function getPowerupParams(
 	payer: Name,
 	receiver: Name,
 	max_payment: Asset
-): ActionParams.powerup {
+) {
 	const { cpu_cost, cpu_frac } = getPowerupParamsCPU(ms, powerup, sample, requirements);
 	const { net_cost, net_frac } = getPowerupParamsNET(kb, powerup, sample, requirements);
 
