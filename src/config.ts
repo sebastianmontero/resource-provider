@@ -39,7 +39,19 @@ export const ENABLE_RESOURCE_MANAGER = isENVTrue(Bun.env.ENABLE_RESOURCE_MANAGER
 export const MANAGER_ACCOUNT_NAME = Bun.env.MANAGER_ACCOUNT_NAME;
 export const MANAGER_ACCOUNT_PERMISSION = Bun.env.MANAGER_ACCOUNT_PERMISSION ?? 'manager';
 export const MANAGER_ACCOUNT_PRIVATEKEY = Bun.env.MANAGER_ACCOUNT_PRIVATEKEY;
-export const MANAGER_CRONJOB = Bun.env.MANAGER_CRONJOB ?? '0/5 * * * * *'; // Every 5 seconds
+export const MANAGER_CRONJOB = Bun.env.MANAGER_CRONJOB ?? '0/10 * * * * *'; // Cron job pattern: https://croner.56k.guru/usage/pattern/
+export const MANAGER_BUYRAM_ENABLED = isENVTrue(Bun.env.MANAGER_BUYRAM_ENABLED ?? 'true');
+export const MANAGER_RAM_MINIMUM_KB = Bun.env.MANAGER_RAM_MINIMUM_KB
+	? Number(Bun.env.MANAGER_RAM_MINIMUM_KB)
+	: 1;
+export const MANAGER_BUYRAM_INCREMENT_KB = Bun.env.MANAGER_BUYRAM_INCREMENT_KB
+	? Number(Bun.env.MANAGER_BUYRAM_INCREMENT_KB)
+	: 1;
+export const MANAGER_BUYRAM_ACTION = Bun.env.MANAGER_BUYRAM_ACTION ?? 'buyrambytes';
+export const MANAGER_MIN_MS = Bun.env.MANAGER_MIN_MS ? Number(Bun.env.MANAGER_MIN_MS) : 10;
+export const MANAGER_MIN_KB = Bun.env.MANAGER_MIN_KB ? Number(Bun.env.MANAGER_MIN_KB) : 10;
+export const MANAGER_INC_MS = Bun.env.MANAGER_INC_MS ? Number(Bun.env.MANAGER_INC_MS) : 10;
+export const MANAGER_INC_KB = Bun.env.MANAGER_INC_KB ? Number(Bun.env.MANAGER_INC_KB) : 10;
 
 if (ENABLE_RESOURCE_MANAGER) {
 	if (!MANAGER_ACCOUNT_NAME) {

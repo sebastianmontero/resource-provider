@@ -1,43 +1,7 @@
-import { PrivateKey, Session } from '@wharfkit/session';
+import { Int64, PrivateKey, Session } from '@wharfkit/session';
 
-import { managerLog } from '$lib/logger';
-import { objectify } from '$lib/utils';
-import { client } from '$lib/wharf/client';
 import { systemContract } from '$lib/wharf/contracts';
-import { ANTELOPE_SYSTEM_CONTRACT } from 'src/config';
-
-export interface ManagerAccountStatus {
-	requiresUpdateAuth: boolean;
-	requiresLinkAuth: boolean;
-}
-
-export async function checkManagerAccount(manager: Session): Promise<ManagerAccountStatus> {
-	const status: ManagerAccountStatus = {
-		requiresUpdateAuth: false,
-		requiresLinkAuth: false
-	};
-	managerLog.debug(
-		'checking manager account',
-		objectify({
-			actor: manager.actor
-		})
-	);
-	const account = await client.v1.chain.get_account(manager.actor);
-	const permission = account.permissions.find((p) => p.perm_name.equals(manager.permission));
-	if (!permission) {
-		status.requiresUpdateAuth = true;
-		status.requiresLinkAuth = true;
-	} else {
-		const actionLinked = permission.linked_actions.find((a) =>
-			a.account.equals(ANTELOPE_SYSTEM_CONTRACT)
-		);
-		if (!actionLinked) {
-			status.requiresLinkAuth = true;
-		}
-	}
-	managerLog.debug('manager account status', status);
-	return status;
-}
+import { ANTELOPE_SYSTEM_CONTRACT, MANAGER_RAM_MINIMUM_KB } from 'src/config';
 
 export function makeUpdateAuthAction(manager: Session) {
 	const params = {
@@ -59,12 +23,12 @@ export function makeUpdateAuthAction(manager: Session) {
 	return systemContract.action('updateauth', params);
 }
 
-export function makeLinkAuthAction(manager: Session) {
+export function makeLinkAuthAction(manager: Session, action: string) {
 	const params = {
 		account: manager.actor,
 		requirement: manager.permission,
 		code: ANTELOPE_SYSTEM_CONTRACT,
-		type: 'powerup'
+		type: action
 	};
 	return systemContract.action('linkauth', params);
 }
@@ -77,11 +41,20 @@ export function makeDeleteAuthAction(manager: Session) {
 	return systemContract.action('deleteauth', params);
 }
 
-export function makeUnlinkAuthAction(manager: Session) {
+export function makeUnlinkAuthAction(manager: Session, action: string) {
 	const params = {
 		account: manager.actor,
 		code: ANTELOPE_SYSTEM_CONTRACT,
-		type: 'powerup'
+		type: action
 	};
 	return systemContract.action('unlinkauth', params);
+}
+
+export function makeBuyRamBytesSelfAction(manager: Session) {
+	const params = {
+		payer: manager.actor,
+		receiver: manager.actor,
+		bytes: Int64.from(MANAGER_RAM_MINIMUM_KB).multiplying(1000)
+	};
+	return systemContract.action('buyrambytes', params);
 }

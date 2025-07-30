@@ -2,24 +2,30 @@ import { SigningRequest } from '@wharfkit/signing-request';
 import { Command } from 'commander';
 
 import { managerLog } from '$lib/logger';
-import { checkManagerAccount, makeLinkAuthAction, makeUpdateAuthAction } from '$lib/manager/setup';
+import { makeLinkAuthAction, makeUpdateAuthAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
+import { client } from '$lib/wharf/client';
 import { getManagerSession } from '$lib/wharf/session/manager';
-import { ANTELOPE_CHAIN_ID, explorers } from 'src/config';
+import { ANTELOPE_CHAIN_ID, explorers, MANAGER_BUYRAM_ACTION } from 'src/config';
+import { getManagerAccountStatus } from 'src/manager/manage/manager';
 
 export function makeManagerSetupCommand() {
 	const command = new Command('setup')
 		.description('Create a signing request to configure account permissions for a specific service')
 		.action(async () => {
 			const manager = getManagerSession();
-			const status = await checkManagerAccount(manager);
+			const data = await client.v1.chain.get_account(manager.actor);
+			const status = getManagerAccountStatus(manager, data);
 
 			const actions = [];
 			if (status.requiresUpdateAuth) {
 				actions.push(makeUpdateAuthAction(manager));
 			}
-			if (status.requiresLinkAuth) {
-				actions.push(makeLinkAuthAction(manager));
+			if (status.requiresLinkAuthPowerup) {
+				actions.push(makeLinkAuthAction(manager, 'powerup'));
+			}
+			if (status.requiresLinkAuthBuyRAM) {
+				actions.push(makeLinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
 			}
 
 			if (!actions.length) {

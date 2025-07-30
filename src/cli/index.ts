@@ -6,7 +6,7 @@ import { manager } from '../manager';
 import { server } from '../provider';
 
 import { makeManagerAddCommand } from './manager/add';
-import { makeManagerDeleteCommand } from './manager/delete';
+import { makeManagerUnauthorizeCommand } from './manager/delete';
 import { makeManagerListCommand } from './manager/list';
 import { makeManagerRemoveCommand } from './manager/remove';
 import { makeManagerRunCommand } from './manager/run';
@@ -49,7 +49,7 @@ export function prompt() {
 	manage.addCommand(makeManagerRemoveCommand());
 	manage.addCommand(makeManagerRunCommand());
 	manage.addCommand(makeManagerSetupCommand());
-	manage.addCommand(makeManagerDeleteCommand());
+	manage.addCommand(makeManagerUnauthorizeCommand());
 
 	// TODO: Implement the permissions command
 	// This command should read the cosigner's account information and determine which permissions are needed
@@ -63,7 +63,7 @@ export function prompt() {
 		.option('-s, --seconds [seconds]', 'Seconds to expire usage records', String(defaultTtl)) // Default to 1 day
 		.action(({ seconds }) => {
 			generalLog.info(`Cleaning usage records older than ${seconds} seconds`);
-			usage.cleanUsage(seconds);
+			// usage.cleanUsage(seconds);
 		});
 	program
 		.command('reset')
@@ -71,7 +71,7 @@ export function prompt() {
 		.argument('<string>', 'account name to add usage for')
 		.action((name) => {
 			generalLog.info(`Resetting all usage records for ${name}`);
-			usage.resetUsage(name);
+			// usage.resetUsage(name);
 		});
 	program
 		.command('usage')
@@ -79,7 +79,7 @@ export function prompt() {
 		.argument('<string>', 'account name to query')
 		.action(async (name) => {
 			generalLog.info(`Counting usage for name: ${name}`);
-			generalLog.info(await usage.getUsage(name));
+			// generalLog.info(await usage.getUsage(name));
 		});
 	program.commandsGroup('Database Management');
 	program
@@ -95,7 +95,7 @@ export function prompt() {
 		.argument('<string>', 'account name to add usage for')
 		.action((name) => {
 			generalLog.info(`Adding usage for name: ${name}`);
-			usage.addUsage(name, 10);
+			// usage.addUsage(name, 10);
 		});
 	program.parse(process.argv);
 }

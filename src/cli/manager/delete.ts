@@ -2,27 +2,29 @@ import { SigningRequest } from '@wharfkit/signing-request';
 import { Command } from 'commander';
 
 import { managerLog } from '$lib/logger';
-import {
-	checkManagerAccount,
-	makeDeleteAuthAction,
-	makeUnlinkAuthAction
-} from '$lib/manager/setup';
+import { makeDeleteAuthAction, makeUnlinkAuthAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
+import { client } from '$lib/wharf/client';
 import { getManagerSession } from '$lib/wharf/session/manager';
-import { ANTELOPE_CHAIN_ID, explorers } from 'src/config';
+import { ANTELOPE_CHAIN_ID, explorers, MANAGER_BUYRAM_ACTION } from 'src/config';
+import { getManagerAccountStatus } from 'src/manager/manage/manager';
 
-export function makeManagerDeleteCommand() {
-	const command = new Command('delete')
+export function makeManagerUnauthorizeCommand() {
+	const command = new Command('unauthorize')
 		.description(
 			'Remove the resource management permissions from the manager account. The "manager setup" command will need to be run to re-enable resource management.'
 		)
 		.action(async () => {
 			const manager = getManagerSession();
-			const status = await checkManagerAccount(manager);
+			const data = await client.v1.chain.get_account(manager.actor);
+			const status = getManagerAccountStatus(manager, data);
 
 			const actions = [];
-			if (!status.requiresLinkAuth) {
-				actions.push(makeUnlinkAuthAction(manager));
+			if (!status.requiresLinkAuthPowerup) {
+				actions.push(makeUnlinkAuthAction(manager, 'powerup'));
+			}
+			if (!status.requiresLinkAuthBuyRAM) {
+				actions.push(makeUnlinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
 			}
 			if (!status.requiresUpdateAuth) {
 				actions.push(makeDeleteAuthAction(manager));
@@ -30,7 +32,7 @@ export function makeManagerDeleteCommand() {
 
 			if (!actions.length) {
 				console.log(
-					'Delete not required. Manager account is already missing the required permissions.'
+					'Unauthorize not required. Manager account is already missing the required permissions.'
 				);
 				console.log('\n');
 				console.log('View current account permissions on Unicove using the URL below:');
