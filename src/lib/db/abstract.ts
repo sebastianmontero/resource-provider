@@ -2,7 +2,7 @@ import { Changes } from 'bun:sqlite';
 
 import { database } from '.';
 
-import * as schema from '$lib/db/schema/accounts';
+import * as schema from '$lib/db/schema';
 
 export abstract class AbstractDatabase {
 	protected db = database;

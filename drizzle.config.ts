@@ -7,7 +7,7 @@ if (!DATABASE_ADAPTER) {
 }
 
 const config = {
-	schema: './src/lib/db/schema',
+	schema: './src/lib/db/schema.ts',
 	out: './drizzle',
 	dialect: DATABASE_ADAPTER as Config['dialect'],
 	dbCredentials: {

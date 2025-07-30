@@ -5,7 +5,7 @@ import { Static } from 'elysia';
 import { v2ManagedAccountType } from '$api/v2/manager/types';
 import { database } from '$lib/db';
 import { AbstractDatabase } from '$lib/db/abstract';
-import * as schema from '$lib/db/schema/accounts';
+import * as schema from '$lib/db/schema';
 
 @Struct.type('managed_account')
 export class ManagedAccount extends Struct {

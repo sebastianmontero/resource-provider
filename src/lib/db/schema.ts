@@ -8,3 +8,8 @@ export const users = sqliteTable('accounts', {
 	inc_kb: integer('inc_kb').notNull(),
 	max_fee: text('max_fee').notNull()
 });
+
+export const contracts = sqliteTable('contracts', {
+	contract: text('contract').primaryKey(),
+	abi: text('abi').notNull()
+});
