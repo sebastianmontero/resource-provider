@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { database } from '$lib/db';
 import { AbstractDatabase } from '$lib/db/abstract';
 import { generalLog } from '$lib/logger';
-import { client } from '$lib/wharf/client';
+import { getClient } from '$lib/wharf/client';
 
 export class ContractsDatabase extends AbstractDatabase {
 	async save(contract: NameType, abi: ABI) {
@@ -23,7 +23,7 @@ export class ContractsDatabase extends AbstractDatabase {
 			.from(this.schema.contracts)
 			.where(eq(this.schema.contracts.contract, String(contract)));
 		if (!result.length) {
-			const kit = new ContractKit({ client });
+			const kit = new ContractKit({ client: getClient() });
 			generalLog.info(`No ABI found for "${contract}" contract, caching...`);
 			const result = await kit.load(contract);
 			if (!result) {

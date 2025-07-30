@@ -14,7 +14,7 @@ const cronOptions: CronOptions = { catch: (e) => managerLog.error(e), protect: t
 
 export const managerJob = async function () {
 	try {
-		const manager = getManagerSession();
+		const manager = await getManagerSession();
 		const managerContext = await getManagerContext();
 		await manageManagerAccount(manager, managerContext);
 		if (!managerContext.managedAccounts.length) {

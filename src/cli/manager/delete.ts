@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { managerLog } from '$lib/logger';
 import { makeDeleteAuthAction, makeUnlinkAuthAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
-import { client } from '$lib/wharf/client';
+import { getClient } from '$lib/wharf/client';
 import { getManagerSession } from '$lib/wharf/session/manager';
 import { ANTELOPE_CHAIN_ID, explorers, MANAGER_BUYRAM_ACTION } from 'src/config';
 import { getManagerAccountStatus } from 'src/manager/manage/manager';
@@ -15,8 +15,8 @@ export function makeManagerUnauthorizeCommand() {
 			'Remove the resource management permissions from the manager account. The "manager setup" command will need to be run to re-enable resource management.'
 		)
 		.action(async () => {
-			const manager = getManagerSession();
-			const data = await client.v1.chain.get_account(manager.actor);
+			const manager = await getManagerSession();
+			const data = await getClient().v1.chain.get_account(manager.actor);
 			const status = getManagerAccountStatus(manager, data);
 
 			const actions = [];

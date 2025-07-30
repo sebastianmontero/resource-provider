@@ -9,7 +9,7 @@ import { ManagedAccount } from '$lib/db/models/manager/account';
 import { managerLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
 import { getPowerupParams } from '$lib/wharf/actions/powerup';
-import { client } from '$lib/wharf/client';
+import { getClient } from '$lib/wharf/client';
 import { getContract } from '$lib/wharf/contracts';
 import { getAccountRequiredResources } from '$lib/wharf/resources';
 import { ANTELOPE_SYSTEM_CONTRACT } from 'src/config';
@@ -21,7 +21,7 @@ export async function manageAccountResources(
 ) {
 	try {
 		const managed = ManagedAccount.from(account);
-		const data = await client.v1.chain.get_account(managed.account);
+		const data = await getClient().v1.chain.get_account(managed.account);
 		const requiredResources = getAccountRequiredResources(managed, data);
 		const params = getPowerupParams(
 			managed.inc_ms,

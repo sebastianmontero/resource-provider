@@ -13,3 +13,9 @@ export const contracts = sqliteTable('contracts', {
 	contract: text('contract').primaryKey(),
 	abi: text('abi').notNull()
 });
+
+export const manager = sqliteTable('manager', {
+	account: text('account').primaryKey(),
+	permission: text('permission').notNull(),
+	key: text('key').notNull()
+});

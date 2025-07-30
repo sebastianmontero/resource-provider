@@ -1,22 +1,28 @@
 import { ABICache } from '@wharfkit/abicache';
-import { APIClient, Name, PackedTransaction, Transaction } from '@wharfkit/antelope';
+import { Name, PackedTransaction, Transaction } from '@wharfkit/antelope';
 import { SigningRequest } from '@wharfkit/signing-request';
 import type { Static } from 'elysia';
+
+import { getClient } from './client';
 
 import type { v1ProviderRequestBody } from '$api/v1/types';
 import { generalLog } from '$lib/logger';
 import type { TPackedTransaction, TTransaction } from '$lib/types';
-import { ANTELOPE_NODEOS_API } from 'src/config';
 
-const cache = new ABICache(new APIClient({ url: ANTELOPE_NODEOS_API }));
+function getCache() {
+	return new ABICache(getClient());
+}
 
-export const opts = {
-	zlib: {
-		deflateRaw: (data: Uint8Array) => Bun.deflateSync(Buffer.from(data)),
-		inflateRaw: (data: Uint8Array) => Bun.inflateSync(Buffer.from(data))
-	},
-	abiProvider: cache
-};
+export function getOpts() {
+	const cache = getCache();
+	return {
+		zlib: {
+			deflateRaw: (data: Uint8Array) => Bun.deflateSync(Buffer.from(data)),
+			inflateRaw: (data: Uint8Array) => Bun.inflateSync(Buffer.from(data))
+		},
+		abiProvider: cache
+	};
+}
 
 export async function createSigningRequestFromString(request: string): Promise<SigningRequest> {
 	generalLog.debug('createSigningRequestFromString', { request });
@@ -24,7 +30,7 @@ export async function createSigningRequestFromString(request: string): Promise<S
 	if (!request.startsWith('esr:')) {
 		payload = 'esr://' + request;
 	}
-	return SigningRequest.from(payload, opts);
+	return SigningRequest.from(payload, getOpts());
 }
 
 export async function createSigningRequestFromPackedTransaction(
@@ -36,7 +42,7 @@ export async function createSigningRequestFromPackedTransaction(
 		{
 			transaction: decoded.getTransaction()
 		},
-		opts
+		getOpts()
 	);
 }
 
@@ -48,14 +54,14 @@ export async function createSigningRequestFromTransaction(
 	const abis = await Promise.all(
 		contracts.map(async (account) => ({
 			contract: account,
-			abi: await cache.getAbi(Name.from(account))
+			abi: await getCache().getAbi(Name.from(account))
 		}))
 	);
 	return await SigningRequest.create(
 		{
 			transaction: Transaction.from(transaction, abis)
 		},
-		opts
+		getOpts()
 	);
 }
 

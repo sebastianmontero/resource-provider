@@ -15,6 +15,13 @@
       "when": 1753848150397,
       "tag": "0001_foamy_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1753904120281,
+      "tag": "0002_far_whirlwind",
+      "breakpoints": true
     }
   ]
 }

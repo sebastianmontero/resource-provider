@@ -22,18 +22,6 @@ export const ANTELOPE_SYSTEM_CONTRACT = process.env.ANTELOPE_SYSTEM_CONTRACT ?? 
 export const ANTELOPE_SYSTEM_TOKEN = process.env.ANTELOPE_SYSTEM_TOKEN;
 export const ANTELOPE_TOKEN_CONTRACT = process.env.ANTELOPE_TOKEN_CONTRACT ?? 'core.vaulta';
 
-if (!ANTELOPE_CHAIN_ID) {
-	throw new Error('The ANTELOPE_CHAIN_ID value must be configured.');
-}
-
-if (!ANTELOPE_NODEOS_API) {
-	throw new Error('The ANTELOPE_NODEOS_API value must be configured.');
-}
-
-if (!ANTELOPE_SYSTEM_TOKEN) {
-	throw new Error('The ANTELOPE_SYSTEM_TOKEN value must be configured.');
-}
-
 // Feature: Automated Resource Management
 export const ENABLE_RESOURCE_MANAGER = isENVTrue(process.env.ENABLE_RESOURCE_MANAGER ?? 'false');
 export const MANAGER_ACCOUNT_NAME = process.env.MANAGER_ACCOUNT_NAME;
@@ -57,11 +45,6 @@ if (ENABLE_RESOURCE_MANAGER) {
 	if (!MANAGER_ACCOUNT_NAME) {
 		throw new Error(
 			'If ENABLE_RESOURCE_MANAGER is set to true, MANAGER_ACCOUNT_NAME must also be defined.'
-		);
-	}
-	if (!MANAGER_ACCOUNT_PRIVATEKEY) {
-		throw new Error(
-			'If ENABLE_RESOURCE_MANAGER is set to true, MANAGER_ACCOUNT_PRIVATEKEY must also be defined.'
 		);
 	}
 }

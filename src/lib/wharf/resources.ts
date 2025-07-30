@@ -2,21 +2,23 @@ import { API } from '@wharfkit/antelope';
 import { Resources } from '@wharfkit/resources';
 
 import { AccountRequiredResources } from './actions/powerup';
+import { getClient } from './client';
 
 import { ManagedAccount } from '$lib/db/models/manager/account';
 import { generalLog, managerLog } from '$lib/logger';
 import { AccountResources } from '$lib/types';
 import { objectify } from '$lib/utils';
-import { client } from '$lib/wharf/client';
 import { ANTELOPE_SAMPLE_ACCOUNT } from 'src/config';
 
-export const resourcesClient = new Resources({
-	api: client,
-	sampleAccount: ANTELOPE_SAMPLE_ACCOUNT
-});
+export function getResourcesClient() {
+	return new Resources({
+		api: getClient(),
+		sampleAccount: ANTELOPE_SAMPLE_ACCOUNT
+	});
+}
 
 export async function getSampledUsage() {
-	const usage = await resourcesClient.getSampledUsage();
+	const usage = await getResourcesClient().getSampledUsage();
 	generalLog.debug('Sampled Usage', objectify(usage));
 	return usage;
 }

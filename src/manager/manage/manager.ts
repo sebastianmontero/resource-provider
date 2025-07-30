@@ -8,7 +8,7 @@ import { managerLog } from '$lib/logger';
 import { makeBuyRamBytesSelfAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
 import { getPowerupParams } from '$lib/wharf/actions/powerup';
-import { client } from '$lib/wharf/client';
+import { getClient } from '$lib/wharf/client';
 import { getContract } from '$lib/wharf/contracts';
 import { getAccountRequiredResources } from '$lib/wharf/resources';
 import {
@@ -23,20 +23,12 @@ import {
 	MANAGER_RAM_MINIMUM_KB
 } from 'src/config';
 
-const managerAccount = ManagedAccount.from({
-	account: MANAGER_ACCOUNT_NAME,
-	min_ms: Int64.from(MANAGER_MIN_MS),
-	min_kb: Int64.from(MANAGER_MIN_KB),
-	inc_ms: Int64.from(MANAGER_INC_MS),
-	inc_kb: Int64.from(MANAGER_INC_KB),
-	max_fee: Asset.fromFloat(0.1, ANTELOPE_SYSTEM_TOKEN)
-});
-
 export interface ManagerAccountStatus {
 	requiresAdditionalRAM: boolean;
 	requiresUpdateAuth: boolean;
 	requiresLinkAuthPowerup: boolean;
 	requiresLinkAuthBuyRAM: boolean;
+	existingPermission?: API.v1.AccountPermission;
 }
 
 export function getManagerAccountStatus(
@@ -65,22 +57,33 @@ export function getManagerAccountStatus(
 		status.requiresAdditionalRAM = true;
 	}
 
-	const permission = data.permissions.find((p) => p.perm_name.equals(manager.permission));
+	status.existingPermission = data.permissions.find((p) => p.perm_name.equals(manager.permission));
 	managerLog.debug('Manager account permissions', objectify(data.permissions));
 
-	if (!permission) {
+	// Ensure the matching permission name exists
+	if (!status.existingPermission) {
 		status.requiresUpdateAuth = true;
 		status.requiresLinkAuthPowerup = true;
 		status.requiresLinkAuthBuyRAM = true;
 	} else {
-		const powerupLinked = permission.linked_actions.find(
+		// Ensure the key on the permission matches the manager's private key
+		const matchingKey = status.existingPermission.required_auth.keys.find((k) => {
+			return k.key.equals(manager.walletPlugin.data.privateKey.toPublic());
+		});
+		if (!matchingKey) {
+			status.requiresUpdateAuth = true;
+		}
+
+		// Ensure the permission is allowed to perform powerup
+		const powerupLinked = status.existingPermission.linked_actions.find(
 			(a) => a.account.equals(ANTELOPE_SYSTEM_CONTRACT) && a.action.equals('powerup')
 		);
 		if (!powerupLinked) {
 			status.requiresLinkAuthPowerup = true;
 		}
 
-		const buyRAMLinked = permission.linked_actions.find(
+		// Ensure the permission is allowed to perform buyram
+		const buyRAMLinked = status.existingPermission.linked_actions.find(
 			(a) => a.account.equals(ANTELOPE_SYSTEM_CONTRACT) && a.action.equals(MANAGER_BUYRAM_ACTION)
 		);
 		if (!buyRAMLinked) {
@@ -93,7 +96,7 @@ export function getManagerAccountStatus(
 }
 
 export async function manageManagerAccount(manager: Session, context: ManagerContext) {
-	const data = await client.v1.chain.get_account(manager.actor);
+	const data = await getClient().v1.chain.get_account(manager.actor);
 	const status = getManagerAccountStatus(manager, data);
 	const actions: Action[] = [];
 	if (
@@ -112,7 +115,14 @@ export async function manageManagerAccount(manager: Session, context: ManagerCon
 		});
 		actions.push(await makeBuyRamBytesSelfAction(manager));
 	}
-
+	const managerAccount = ManagedAccount.from({
+		account: MANAGER_ACCOUNT_NAME,
+		min_ms: Int64.from(MANAGER_MIN_MS),
+		min_kb: Int64.from(MANAGER_MIN_KB),
+		inc_ms: Int64.from(MANAGER_INC_MS),
+		inc_kb: Int64.from(MANAGER_INC_KB),
+		max_fee: Asset.fromFloat(0.1, ANTELOPE_SYSTEM_TOKEN)
+	});
 	const requiredResources = getAccountRequiredResources(managerAccount, data);
 	const params = getPowerupParams(
 		managerAccount.inc_ms,

@@ -1,6 +1,8 @@
-import { Session } from '@wharfkit/session';
+import { PrivateKey, Session } from '@wharfkit/session';
 import { WalletPluginPrivateKey } from '@wharfkit/wallet-plugin-privatekey';
 
+import { managerAccount } from '$lib/db/models/manager/manager';
+import { managerLog } from '$lib/logger';
 import {
 	ANTELOPE_CHAIN_ID,
 	ANTELOPE_NODEOS_API,
@@ -9,18 +11,13 @@ import {
 	MANAGER_ACCOUNT_PRIVATEKEY
 } from 'src/config';
 
-export function getManagerSession(): Session {
-	if (
-		!ANTELOPE_CHAIN_ID ||
-		!ANTELOPE_NODEOS_API ||
-		!MANAGER_ACCOUNT_NAME ||
-		!MANAGER_ACCOUNT_PERMISSION ||
-		!MANAGER_ACCOUNT_PRIVATEKEY
-	) {
-		throw new Error(
-			'Manager not configured. Please set the environment variables ANTELOPE_CHAIN_ID, ANTELOPE_NODEOS_API, MANAGER_ACCOUNT_NAME, MANAGER_ACCOUNT_PERMISSION, and MANAGER_ACCOUNT_PRIVATEKEY.'
-		);
-	}
+export async function getManagerSession(): Promise<Session> {
+	const manager = await managerAccount.getManagerAccount();
+	managerLog.info('Using manager account', {
+		account: manager.account,
+		permission: manager.permission,
+		key: PrivateKey.from(manager.key).toPublic()
+	});
 	return new Session({
 		chain: {
 			id: ANTELOPE_CHAIN_ID,
@@ -28,8 +25,8 @@ export function getManagerSession(): Session {
 		},
 		permissionLevel: {
 			actor: MANAGER_ACCOUNT_NAME,
-			permission: MANAGER_ACCOUNT_PERMISSION
+			permission: MANAGER_ACCOUNT_PERMISSION || manager.permission
 		},
-		walletPlugin: new WalletPluginPrivateKey(MANAGER_ACCOUNT_PRIVATEKEY)
+		walletPlugin: new WalletPluginPrivateKey(MANAGER_ACCOUNT_PRIVATEKEY || manager.key)
 	});
 }

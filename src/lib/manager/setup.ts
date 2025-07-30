@@ -1,22 +1,37 @@
-import { Int64, PrivateKey, Session } from '@wharfkit/session';
+import { API, Int64, KeyWeight, PrivateKey, Session } from '@wharfkit/session';
 
 import { getContract } from '$lib/wharf/contracts';
 import { ANTELOPE_SYSTEM_CONTRACT, MANAGER_RAM_MINIMUM_KB } from 'src/config';
 
-export async function makeUpdateAuthAction(manager: Session) {
+export async function makeUpdateAuthAction(
+	manager: Session,
+	existingPermission?: API.v1.AccountPermission
+) {
 	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
+
+	const keys: KeyWeight[] = [
+		KeyWeight.from({
+			key: PrivateKey.from(manager.walletPlugin.data.privateKey).toPublic(),
+			weight: 1
+		})
+	];
+
+	// Retain any other keys that may exist on the permission
+	if (existingPermission && existingPermission.required_auth.keys) {
+		for (const k of existingPermission.required_auth.keys) {
+			if (!k.key.equals(manager.walletPlugin.data.privateKey.toPublic())) {
+				keys.push(KeyWeight.from({ key: k.key, weight: k.weight }));
+			}
+		}
+	}
+
 	const params = {
 		account: manager.actor,
 		permission: manager.permission,
 		parent: 'active',
 		auth: {
 			threshold: 1,
-			keys: [
-				{
-					key: PrivateKey.from(manager.walletPlugin.data.privateKey).toPublic(),
-					weight: 1
-				}
-			],
+			keys,
 			accounts: [],
 			waits: []
 		}

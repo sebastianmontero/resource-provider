@@ -31,7 +31,7 @@ export function makeManagerAddCommand() {
 		.addArgument(
 			new Argument(
 				'<max_fee>',
-				`Maximum fee the provider can charge for a single powerup (e.g. 1 for ${Asset.fromFloat(1, ANTELOPE_SYSTEM_TOKEN)})`
+				`Maximum fee the provider can charge for a single powerup (e.g. 1 for ${Asset.fromFloat(1, ANTELOPE_SYSTEM_TOKEN || '4,TOKEN')})`
 			)
 		)
 		.description('Automatically manage CPU/NET resources for an account')
