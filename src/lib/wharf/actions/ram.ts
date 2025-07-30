@@ -1,14 +1,17 @@
 import { Transaction } from '@wharfkit/antelope';
 import type { PermissionLevel, UInt64 } from '@wharfkit/antelope';
 
-import { systemContract } from '$lib/wharf/contracts';
+import { getContract } from '../contracts';
 
-export function addBuyRAMBytesAction(
+import { ANTELOPE_SYSTEM_CONTRACT } from 'src/config';
+
+export async function addBuyRAMBytesAction(
 	transaction: Transaction,
 	cosigner: PermissionLevel,
 	requestor: PermissionLevel,
 	bytes: UInt64
-): Transaction {
+): Promise<Transaction> {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const modified = Transaction.from(transaction);
 	modified.actions.push(
 		systemContract.action(
