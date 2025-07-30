@@ -5,7 +5,6 @@ BIN := ./node_modules/.bin
 OS := $(shell uname)
 
 RELEASE_NAME=rpcli
-CONTRACT_DIR=./src/lib/contracts
 
 build: deps
 	bun build src/index.ts --compile --minify --sourcemap --outfile dist/$(RELEASE_NAME)
@@ -40,15 +39,15 @@ check: deps
 
 .PHONY: drizzle/generate
 drizzle/generate: deps
-	bunx drizzle-kit generate
+	$(BIN)/drizzle-kit generate
 
 .PHONY: drizzle/migrate
 drizzle/migrate: deps
-	bunx drizzle-kit migrate && bun run scripts/generate-migration.ts
+	$(BIN)/drizzle-kit migrate && bun run scripts/generate-migration.ts
 
 .PHONY: drizzle/studio
 drizzle/studio: deps
-	bunx drizzle-kit studio
+	$(BIN)/drizzle-kit studio
 
 .PHONY: format
 format: deps
@@ -85,24 +84,13 @@ release: clean/node_modules deps dist/$(RELEASE_NAME)-linux-x64 dist/$(RELEASE_N
 	ls -lhd dist/*
 
 .PHONY: deps
-deps: node_modules codegen
+deps: node_modules
 
 node_modules:
 	bun install --frozen-lockfile
 
-$(CONTRACT_DIR)/system.ts:
-	bunx @wharfkit/cli generate -u $(ANTELOPE_NODEOS_API) -f $(CONTRACT_DIR)/system.ts $(ANTELOPE_SYSTEM_CONTRACT)
-
-$(CONTRACT_DIR)/token.ts:
-	bunx @wharfkit/cli generate -u $(ANTELOPE_NODEOS_API) -f $(CONTRACT_DIR)/token.ts $(ANTELOPE_TOKEN_CONTRACT)
-
-$(CONTRACT_DIR)/noop.ts:
-	bunx @wharfkit/cli generate -u $(ANTELOPE_NODEOS_API) -f $(CONTRACT_DIR)/noop.ts $(ANTELOPE_NOOP_CONTRACT)
-
-codegen: $(CONTRACT_DIR)/system.ts $(CONTRACT_DIR)/token.ts $(CONTRACT_DIR)/noop.ts
-
 .PHONY: clean
-clean: clean/dist clean/codegen
+clean: clean/dist
 
 .PHONY: clean/dist
 clean/dist:
@@ -111,10 +99,6 @@ clean/dist:
 .PHONY: clean/node_modules
 clean/node_modules:
 	rm -rf node_modules
-
-.PHONY: clean/codegen
-clean/codegen:
-	rm -f $(CONTRACT_DIR)/*.ts
 
 .PHONY: clean/testdb
 clean/testdb:
