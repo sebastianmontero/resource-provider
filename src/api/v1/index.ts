@@ -1,16 +1,19 @@
 import { Elysia } from 'elysia';
 import type { Static } from 'elysia';
 
-import { powerup } from './powerup';
+// import { powerup } from './powerup';
 import { request } from './request';
-import { v1PowerupRequest, v1ProviderRequest } from './types';
+import {
+	// v1PowerupRequest,
+	v1ProviderRequest
+} from './types';
 import type { v1ResponseRejected } from './types';
 
 export const v1 = new Elysia()
 	.group('/v1', (root) =>
 		root.group('/resource_provider', (group) =>
 			group
-				.post('/request_powerup', powerup, v1PowerupRequest)
+				// .post('/request_powerup', powerup, v1PowerupRequest)
 				.post('/request_transaction', request, v1ProviderRequest)
 		)
 	)
