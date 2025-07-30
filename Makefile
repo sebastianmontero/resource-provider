@@ -3,6 +3,7 @@ include .env
 SHELL := /usr/bin/env bash
 BIN := ./node_modules/.bin
 OS := $(shell uname)
+VERSION := $(shell git describe --tags --always --abbrev=0)
 
 RELEASE_NAME=rpcli
 
@@ -59,18 +60,18 @@ dist/$(RELEASE_NAME)-linux-x64:
 dist/$(RELEASE_NAME)-linux-arm64:
 	bun build --target=bun-linux-arm64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-linux-arm64
 
-dist/$(RELEASE_NAME)-windows-x64:
-	bun build --target=bun-windows-x64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-windows-x64
+# dist/$(RELEASE_NAME)-windows-x64:
+# 	bun build --target=bun-windows-x64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-windows-x64
 
-dist/$(RELEASE_NAME)-windows-arm64:
-	# TODO: Figure out why this isn't working
-	# bun build --target=bun-windows-arm64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-windows-arm64
+# dist/$(RELEASE_NAME)-windows-arm64:
+# 	# TODO: Figure out why this isn't working
+# 	# bun build --target=bun-windows-arm64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-windows-arm64
 
-dist/$(RELEASE_NAME)-darwin-x64:
-	bun build --target=bun-darwin-x64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-darwin-x64
+# dist/$(RELEASE_NAME)-darwin-x64:
+# 	bun build --target=bun-darwin-x64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-darwin-x64
 
-dist/$(RELEASE_NAME)-darwin-arm64:
-	bun build --target=bun-darwin-arm64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-darwin-arm64
+# dist/$(RELEASE_NAME)-darwin-arm64:
+# 	bun build --target=bun-darwin-arm64 --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-darwin-arm64
 
 dist/$(RELEASE_NAME)-linux-x64-musl:
 	bun build --target=bun-linux-x64-musl --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-linux-x64-musl
@@ -78,10 +79,11 @@ dist/$(RELEASE_NAME)-linux-x64-musl:
 dist/$(RELEASE_NAME)-linux-arm64-musl:
 	bun build --target=bun-linux-arm64-musl --compile --minify --sourcemap src/index.ts --outfile dist/$(RELEASE_NAME)-linux-arm64-musl
 
-release: clean/node_modules deps dist/$(RELEASE_NAME)-linux-x64 dist/$(RELEASE_NAME)-linux-arm64 dist/$(RELEASE_NAME)-windows-x64 dist/$(RELEASE_NAME)-windows-arm64 dist/$(RELEASE_NAME)-darwin-x64 dist/$(RELEASE_NAME)-darwin-arm64 dist/$(RELEASE_NAME)-linux-x64-musl dist/$(RELEASE_NAME)-linux-arm64-musl
-	@echo
-	@echo Created release in the ./dist directory.
-	ls -lhd dist/*
+release: clean deps dist/$(RELEASE_NAME)-linux-x64 dist/$(RELEASE_NAME)-linux-arm64 dist/$(RELEASE_NAME)-linux-x64-musl dist/$(RELEASE_NAME)-linux-arm64-musl
+	gzip dist/*
+	git push
+	git push --tags
+	gh release create $(VERSION) ./dist/*.gz --generate-notes -t $(VERSION) 
 
 .PHONY: deps
 deps: node_modules
