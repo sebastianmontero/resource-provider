@@ -14,6 +14,7 @@ import { makeManagerSetupCommand } from './manager/setup';
 
 import { contractsDatabase } from '$lib/db/models/contract/contracts';
 import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
+import { createEnvironmentalFile } from '$lib/env';
 
 const services = ['all', 'api', 'manager'];
 
@@ -24,6 +25,14 @@ export function prompt() {
 		.version(version)
 		.name('resource-provider')
 		.description('Antelope Resource Provider Service');
+
+	program
+		.command('config')
+		.description('Create a new blank configuration file')
+		.action(async () => {
+			await createEnvironmentalFile();
+			generalLog.info('Created a new blank configuration file (.env)');
+		});
 
 	program.commandsGroup('Run Service');
 	program
