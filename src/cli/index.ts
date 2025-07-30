@@ -43,19 +43,14 @@ export function prompt() {
 
 	program.commandsGroup('Resource Manager');
 	const manage = program
-		.command('manager [add|list|remove|run|setup|delete]')
-		.description('Manage resources for defined accounts automatically.');
+		.command('manager [add|list|remove|run|setup|unauthorize]')
+		.description('Define a list of accounts and automatically manage their network resources.');
 	manage.addCommand(makeManagerAddCommand());
 	manage.addCommand(makeManagerListCommand());
 	manage.addCommand(makeManagerRemoveCommand());
 	manage.addCommand(makeManagerRunCommand());
 	manage.addCommand(makeManagerSetupCommand());
 	manage.addCommand(makeManagerUnauthorizeCommand());
-
-	// TODO: Implement the permissions command
-	// This command should read the cosigner's account information and determine which permissions are needed
-	// for the cosigner to operate. It then should create a signing request and embed it in a Unicove URL
-	// that can be used to easily update the account.
 
 	program.commandsGroup('User Management');
 	program
