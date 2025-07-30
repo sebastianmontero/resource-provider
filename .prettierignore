@@ -1,3 +1,4 @@
 bun.lock
 src/lib/wharf/contracts
 drizzle/
+src/lib/db/migration-data.generated.ts
