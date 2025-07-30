@@ -12,8 +12,8 @@ import { makeManagerRemoveCommand } from './manager/remove';
 import { makeManagerRunCommand } from './manager/run';
 import { makeManagerSetupCommand } from './manager/setup';
 
-import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
 import { contractsDatabase } from '$lib/db/models/contract/contracts';
+import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
 
 const services = ['all', 'api', 'manager'];
 

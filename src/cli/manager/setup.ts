@@ -19,13 +19,13 @@ export function makeManagerSetupCommand() {
 
 			const actions = [];
 			if (status.requiresUpdateAuth) {
-				actions.push(makeUpdateAuthAction(manager));
+				actions.push(await makeUpdateAuthAction(manager));
 			}
 			if (status.requiresLinkAuthPowerup) {
-				actions.push(makeLinkAuthAction(manager, 'powerup'));
+				actions.push(await makeLinkAuthAction(manager, 'powerup'));
 			}
 			if (status.requiresLinkAuthBuyRAM) {
-				actions.push(makeLinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
+				actions.push(await makeLinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
 			}
 
 			if (!actions.length) {

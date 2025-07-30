@@ -1,9 +1,10 @@
 import { Int64, PrivateKey, Session } from '@wharfkit/session';
 
-import { systemContract } from '$lib/wharf/contracts';
+import { getContract } from '$lib/wharf/contracts';
 import { ANTELOPE_SYSTEM_CONTRACT, MANAGER_RAM_MINIMUM_KB } from 'src/config';
 
-export function makeUpdateAuthAction(manager: Session) {
+export async function makeUpdateAuthAction(manager: Session) {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const params = {
 		account: manager.actor,
 		permission: manager.permission,
@@ -23,7 +24,8 @@ export function makeUpdateAuthAction(manager: Session) {
 	return systemContract.action('updateauth', params);
 }
 
-export function makeLinkAuthAction(manager: Session, action: string) {
+export async function makeLinkAuthAction(manager: Session, action: string) {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const params = {
 		account: manager.actor,
 		requirement: manager.permission,
@@ -33,7 +35,8 @@ export function makeLinkAuthAction(manager: Session, action: string) {
 	return systemContract.action('linkauth', params);
 }
 
-export function makeDeleteAuthAction(manager: Session) {
+export async function makeDeleteAuthAction(manager: Session) {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const params = {
 		account: manager.actor,
 		permission: manager.permission
@@ -41,7 +44,8 @@ export function makeDeleteAuthAction(manager: Session) {
 	return systemContract.action('deleteauth', params);
 }
 
-export function makeUnlinkAuthAction(manager: Session, action: string) {
+export async function makeUnlinkAuthAction(manager: Session, action: string) {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const params = {
 		account: manager.actor,
 		code: ANTELOPE_SYSTEM_CONTRACT,
@@ -50,7 +54,8 @@ export function makeUnlinkAuthAction(manager: Session, action: string) {
 	return systemContract.action('unlinkauth', params);
 }
 
-export function makeBuyRamBytesSelfAction(manager: Session) {
+export async function makeBuyRamBytesSelfAction(manager: Session) {
+	const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 	const params = {
 		payer: manager.actor,
 		receiver: manager.actor,

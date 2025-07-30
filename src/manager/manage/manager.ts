@@ -9,7 +9,7 @@ import { makeBuyRamBytesSelfAction } from '$lib/manager/setup';
 import { objectify } from '$lib/utils';
 import { getPowerupParams } from '$lib/wharf/actions/powerup';
 import { client } from '$lib/wharf/client';
-import { systemContract } from '$lib/wharf/contracts';
+import { getContract } from '$lib/wharf/contracts';
 import { getAccountRequiredResources } from '$lib/wharf/resources';
 import {
 	ANTELOPE_SYSTEM_CONTRACT,
@@ -110,7 +110,7 @@ export async function manageManagerAccount(manager: Session, context: ManagerCon
 		managerLog.info('Adding buyram action for manager account.', {
 			account: manager.actor
 		});
-		actions.push(makeBuyRamBytesSelfAction(manager));
+		actions.push(await makeBuyRamBytesSelfAction(manager));
 	}
 
 	const requiredResources = getAccountRequiredResources(managerAccount, data);
@@ -129,7 +129,8 @@ export async function manageManagerAccount(manager: Session, context: ManagerCon
 		managerLog.info('Adding powerup action for manager account', {
 			account: manager.actor
 		});
-		actions.push(systemContract.action('powerup', params));
+		const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
+		actions.push(await systemContract.action('powerup', params));
 	} else {
 		managerLog.debug('no powerup required', {
 			account: objectify(managerAccount)

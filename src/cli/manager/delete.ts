@@ -21,13 +21,13 @@ export function makeManagerUnauthorizeCommand() {
 
 			const actions = [];
 			if (!status.requiresLinkAuthPowerup) {
-				actions.push(makeUnlinkAuthAction(manager, 'powerup'));
+				actions.push(await makeUnlinkAuthAction(manager, 'powerup'));
 			}
 			if (!status.requiresLinkAuthBuyRAM) {
-				actions.push(makeUnlinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
+				actions.push(await makeUnlinkAuthAction(manager, MANAGER_BUYRAM_ACTION));
 			}
 			if (!status.requiresUpdateAuth) {
-				actions.push(makeDeleteAuthAction(manager));
+				actions.push(await makeDeleteAuthAction(manager));
 			}
 
 			if (!actions.length) {

@@ -1,4 +1,4 @@
-import { ABI } from '@wharfkit/antelope';
+import { ABI, NameType } from '@wharfkit/antelope';
 import { ContractKit } from '@wharfkit/contract';
 import { eq } from 'drizzle-orm';
 
@@ -8,20 +8,20 @@ import { generalLog } from '$lib/logger';
 import { client } from '$lib/wharf/client';
 
 export class ContractsDatabase extends AbstractDatabase {
-	async save(contract: string, abi: ABI) {
+	async save(contract: NameType, abi: ABI) {
 		return database
 			.insert(this.schema.contracts)
-			.values({ contract, abi: JSON.stringify(abi) })
+			.values({ contract: String(contract), abi: JSON.stringify(abi) })
 			.onConflictDoUpdate({
 				target: this.schema.contracts.contract,
 				set: { abi: JSON.stringify(abi) }
 			});
 	}
-	async load(contract: string): Promise<ABI> {
+	async load(contract: NameType): Promise<ABI> {
 		const result = await database
 			.select()
 			.from(this.schema.contracts)
-			.where(eq(this.schema.contracts.contract, contract));
+			.where(eq(this.schema.contracts.contract, String(contract)));
 		if (!result.length) {
 			const kit = new ContractKit({ client });
 			generalLog.info(`No ABI found for "${contract}" contract, caching...`);

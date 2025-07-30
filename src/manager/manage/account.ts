@@ -10,8 +10,9 @@ import { managerLog } from '$lib/logger';
 import { objectify } from '$lib/utils';
 import { getPowerupParams } from '$lib/wharf/actions/powerup';
 import { client } from '$lib/wharf/client';
-import { systemContract } from '$lib/wharf/contracts';
+import { getContract } from '$lib/wharf/contracts';
 import { getAccountRequiredResources } from '$lib/wharf/resources';
+import { ANTELOPE_SYSTEM_CONTRACT } from 'src/config';
 
 export async function manageAccountResources(
 	manager: Session,
@@ -33,7 +34,8 @@ export async function manageAccountResources(
 			managed.max_fee
 		);
 		if (params.cpu_frac.gt(Int64.zero) || params.net_frac.gt(Int64.zero)) {
-			const action = systemContract.action('powerup', params);
+			const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
+			const action = await systemContract.action('powerup', params);
 			managerLog.debug('powerup action to perform', objectify({ action, params }));
 			const result = await manager.transact({ action });
 			if (!result) {
@@ -44,6 +46,7 @@ export async function manageAccountResources(
 				return;
 			}
 			managerLog.info('powerup successful', {
+				account: managed.account,
 				trx_id: String(result.resolved?.transaction.id)
 			});
 		} else {
