@@ -39,15 +39,15 @@ check: deps
 
 .PHONY: drizzle/generate
 drizzle/generate: deps
-	bunx drizzle-kit generate
+	$(BIN)/drizzle-kit generate
 
 .PHONY: drizzle/migrate
 drizzle/migrate: deps
-	bunx drizzle-kit migrate && bun run scripts/generate-migration.ts
+	$(BIN)/drizzle-kit migrate && bun run scripts/generate-migration.ts
 
 .PHONY: drizzle/studio
 drizzle/studio: deps
-	bunx drizzle-kit studio
+	$(BIN)/drizzle-kit studio
 
 .PHONY: format
 format: deps
