@@ -13,6 +13,7 @@ import { makeManagerRunCommand } from './manager/run';
 import { makeManagerSetupCommand } from './manager/setup';
 
 import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
+import { contractsDatabase } from '$lib/db/models/contract/contracts';
 
 const services = ['all', 'api', 'manager'];
 
@@ -82,6 +83,13 @@ export function prompt() {
 			// generalLog.info(await usage.getUsage(name));
 		});
 	program.commandsGroup('Database Management');
+	program
+		.command('flush')
+		.description('Flush the cached ABIs from the database')
+		.action(async () => {
+			generalLog.info('Flushing cached ABIs from the database');
+			await contractsDatabase.clear();
+		});
 	program
 		.command('vacuum')
 		.description('Force SQLITE3 database vacuum')

@@ -34,6 +34,9 @@ export class ContractsDatabase extends AbstractDatabase {
 		}
 		return ABI.from(result[0].abi);
 	}
+	async clear() {
+		return database.delete(this.schema.contracts);
+	}
 }
 
 export const contractsDatabase = new ContractsDatabase();
