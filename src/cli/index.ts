@@ -6,11 +6,11 @@ import { manager } from '../manager';
 import { server } from '../provider';
 
 import { makeManagerAddCommand } from './manager/add';
-import { makeManagerUnauthorizeCommand } from './manager/delete';
 import { makeManagerListCommand } from './manager/list';
 import { makeManagerRemoveCommand } from './manager/remove';
 import { makeManagerRunCommand } from './manager/run';
 import { makeManagerSetupCommand } from './manager/setup';
+import { makeManagerUnauthorizeCommand } from './manager/unauthorize';
 
 import { contractsDatabase } from '$lib/db/models/contract/contracts';
 import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
