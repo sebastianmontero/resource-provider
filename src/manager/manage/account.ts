@@ -36,25 +36,34 @@ export async function manageAccountResources(
 		if (params.cpu_frac.gt(Int64.zero) || params.net_frac.gt(Int64.zero)) {
 			const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 			const action = await systemContract.action('powerup', params);
-			managerLog.debug('powerup action to perform', objectify({ action, params }));
+			managerLog.debug(
+				'powerup action to perform',
+				objectify({ account: managed.account, action, params })
+			);
 			const result = await manager.transact({ action });
-			if (!result) {
+			if (!result.resolved) {
 				managerLog.error(
 					'account management transaction failed with no result',
-					objectify({ managed })
+					objectify({ managed, result })
 				);
 				return;
 			}
-			managerLog.info('powerup successful', {
-				account: managed.account,
-				trx_id: String(result.resolved?.transaction.id)
-			});
+			managerLog.info(
+				'powerup successful',
+				objectify({
+					account: managed.account,
+					trx_id: String(result.resolved?.transaction.id)
+				})
+			);
 		} else {
-			managerLog.debug('no powerup required', {
-				account: objectify(managed)
-			});
+			managerLog.debug(
+				'no powerup required',
+				objectify({
+					account: managed.account
+				})
+			);
 		}
 	} catch (error) {
-		managerLog.error('manageAccountResources failed', { account, error });
+		managerLog.error('manageAccountResources failed', { account, error: String(error) });
 	}
 }
