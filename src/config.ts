@@ -36,8 +36,8 @@ export const MANAGER_BUYRAM_INCREMENT_KB = process.env.MANAGER_BUYRAM_INCREMENT_
 	? Number(process.env.MANAGER_BUYRAM_INCREMENT_KB)
 	: 1;
 export const MANAGER_BUYRAM_ACTION = process.env.MANAGER_BUYRAM_ACTION ?? 'buyrambytes';
-export const MANAGER_MIN_MS = process.env.MANAGER_MIN_MS ? Number(process.env.MANAGER_MIN_MS) : 10;
-export const MANAGER_MIN_KB = process.env.MANAGER_MIN_KB ? Number(process.env.MANAGER_MIN_KB) : 10;
+export const MANAGER_MIN_MS = process.env.MANAGER_MIN_MS ? Number(process.env.MANAGER_MIN_MS) : 5;
+export const MANAGER_MIN_KB = process.env.MANAGER_MIN_KB ? Number(process.env.MANAGER_MIN_KB) : 5;
 export const MANAGER_INC_MS = process.env.MANAGER_INC_MS ? Number(process.env.MANAGER_INC_MS) : 10;
 export const MANAGER_INC_KB = process.env.MANAGER_INC_KB ? Number(process.env.MANAGER_INC_KB) : 10;
 
