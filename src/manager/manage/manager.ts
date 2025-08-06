@@ -136,9 +136,12 @@ export async function manageManagerAccount(manager: Session, context: ManagerCon
 	);
 
 	if (params.cpu_frac.gt(Int64.zero) || params.net_frac.gt(Int64.zero)) {
-		managerLog.info('Adding powerup action for manager account', {
-			account: manager.actor
-		});
+		managerLog.info(
+			'Adding powerup action for manager account',
+			objectify({
+				account: manager.actor
+			})
+		);
 		const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);
 		actions.push(await systemContract.action('powerup', params));
 	} else {

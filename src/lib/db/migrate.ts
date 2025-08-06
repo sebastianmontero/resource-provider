@@ -26,7 +26,7 @@ export const runMigrations = async () => {
 		await drizzleMigrate(database, { migrationsFolder });
 		generalLog.debug('Migration successful');
 	} catch (err) {
-		generalLog.error('Migration failed:', err);
+		generalLog.error('Migration failed:', { error: String(err) });
 	} finally {
 		fs.rmdirSync(migrationsFolder, { recursive: true });
 	}

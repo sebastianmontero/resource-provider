@@ -71,9 +71,23 @@ export function getAccountRequiredResources(
 	const resources = getAccountCurrentResources(data);
 	const cpuRequired = getAccountRequiresCPU(managed, resources);
 	const netRequired = getAccountRequiresNET(managed, resources);
-	managerLog.debug(
-		'Account Required Resources',
-		objectify({ account: managed.account, cpuRequired, netRequired })
-	);
+	if (cpuRequired || netRequired) {
+		managerLog.info(
+			'Account requires additional network resources',
+			objectify({
+				account: managed.account,
+				cpu: {
+					current: resources.cpu,
+					minimum: managed.min_ms.multiplying(1000),
+					required: cpuRequired
+				},
+				net: {
+					current: resources.net,
+					minimum: managed.min_kb.multiplying(1000),
+					required: netRequired
+				}
+			})
+		);
+	}
 	return { cpuRequired, netRequired };
 }

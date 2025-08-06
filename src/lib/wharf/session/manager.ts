@@ -13,7 +13,7 @@ import {
 
 export async function getManagerSession(): Promise<Session> {
 	const manager = await managerAccount.getManagerAccount();
-	managerLog.info('Using manager account', {
+	managerLog.debug('Loaded manager account', {
 		account: manager.account,
 		permission: manager.permission,
 		key: PrivateKey.from(manager.key).toPublic()

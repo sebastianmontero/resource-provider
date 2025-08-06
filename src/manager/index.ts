@@ -28,7 +28,7 @@ export const managerJob = async function () {
 			manageAccountResources(manager, account, managerContext);
 		}
 	} catch (error) {
-		managerLog.error('managerJob failed', { error });
+		managerLog.error('managerJob failed', { error: String(error) });
 	}
 };
 

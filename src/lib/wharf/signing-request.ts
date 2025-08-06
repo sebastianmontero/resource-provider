@@ -85,7 +85,7 @@ export async function createSigningRequest(
 			return createSigningRequestFromPackedTransaction(body.packedTransaction);
 		}
 	} catch (error) {
-		throw new Error('Error parsing request: ' + error);
+		throw new Error('Error parsing request: ' + String(error));
 	}
 
 	throw new Error('No valid request found');
