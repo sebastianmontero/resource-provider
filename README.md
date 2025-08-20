@@ -1,8 +1,8 @@
 # Antelope Resource Provider
 
-The Antelope Resource Provider (ARP) application provides the following features:
+The Antelope Resource Provider application provides the following features:
 
-- **Resource Manager**: Automatically manage network resources (CPU + NET) of specified accounts.
+- **Resource Manager**: Automatically manage network resources (CPU + NET) of selected accounts.
 - (INCOMPLETE) **Resource Provider**: Provide an HTTP API that allows users to request the coverage of network resources by cosigning transactions.
 - (INCOMPLETE) **Request a Powerup**: Provide an HTTP API that allows users to request a powerup to their account by supplying the account name.
 
