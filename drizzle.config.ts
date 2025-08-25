@@ -8,10 +8,13 @@ if (!DATABASE_ADAPTER) {
 
 const dbCredentials = DATABASE_ADAPTER === 'sqlite' ? { url: DATABASE_FILE } : { url: DATABASE_URL };
 
+// Map 'postgres' to 'postgresql' for drizzle-kit
+const dialect = DATABASE_ADAPTER === 'postgres' ? 'postgresql' : (DATABASE_ADAPTER as Config['dialect']);
+
 const config = {
 	schema: './src/lib/db/schema.ts',
 	out: './drizzle',
-	dialect: DATABASE_ADAPTER as Config['dialect'],
+	dialect: dialect as Config['dialect'],
 	dbCredentials
 };
 

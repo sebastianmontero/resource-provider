@@ -1,70 +1,124 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "bf0d3f75-6d97-4a9d-b105-8052c6303306",
+  "id": "918adc01-8dd7-4a8f-be3a-45d0b5b1a343",
   "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "accounts": {
-      "name": "accounts",
+    "public.contracts": {
+      "name": "contracts",
+      "schema": "",
       "columns": {
-        "account": {
-          "name": "account",
+        "contract": {
+          "name": "contract",
           "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "min_ms": {
-          "name": "min_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "min_kb": {
-          "name": "min_kb",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "inc_ms": {
-          "name": "inc_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "inc_kb": {
-          "name": "inc_kb",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "max_fee": {
-          "name": "max_fee",
+        "abi": {
+          "name": "abi",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.manager": {
+      "name": "manager",
+      "schema": "",
+      "columns": {
+        "account": {
+          "name": "account",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "permission": {
+          "name": "permission",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.accounts": {
+      "name": "accounts",
+      "schema": "",
+      "columns": {
+        "account": {
+          "name": "account",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "min_ms": {
+          "name": "min_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_kb": {
+          "name": "min_kb",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inc_ms": {
+          "name": "inc_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inc_kb": {
+          "name": "inc_kb",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "max_fee": {
+          "name": "max_fee",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
-  "views": {},
   "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
+    "tables": {}
   }
 }
