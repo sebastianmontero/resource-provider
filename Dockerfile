@@ -1,5 +1,5 @@
 # Use an official Bun image as a parent image
-FROM oven/bun:1.0.0
+FROM oven/bun:1.2.20
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
