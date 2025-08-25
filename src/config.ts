@@ -12,6 +12,7 @@ export const SERVICE_LOG_LEVEL = process.env.SERVICE_LOG_LEVEL ?? 'info';
 // Database Configuration
 export const DATABASE_ADAPTER = process.env.DATABASE_ADAPTER ?? 'sqlite';
 export const DATABASE_FILE = process.env.DATABASE_FILE ?? 'resource-provider.db';
+export const DATABASE_URL = process.env.DATABASE_URL;
 
 // Chain Configuration
 export const ANTELOPE_CHAIN_ID = process.env.ANTELOPE_CHAIN_ID;

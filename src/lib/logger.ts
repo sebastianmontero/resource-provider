@@ -12,24 +12,26 @@ const logformat = printf(({ label, level, message, timestamp, ...rest }) => {
 	return `${timestamp} ${label} ${level}: ${message} ${JSON.stringify({ ...rest })}`;
 });
 
-if (SERVICE_INFO_LOG) {
-	defaultTransports.push(
-		new transports.File({
-			level: SERVICE_LOG_LEVEL || 'info',
-			filename: SERVICE_INFO_LOG,
-			format: logformat
-		})
-	);
-}
+if (ENVIRONMENT !== 'production') {
+	if (SERVICE_INFO_LOG) {
+		defaultTransports.push(
+			new transports.File({
+				level: SERVICE_LOG_LEVEL || 'info',
+				filename: SERVICE_INFO_LOG,
+				format: logformat
+			})
+		);
+	}
 
-if (SERVICE_ERROR_LOG) {
-	defaultTransports.push(
-		new transports.File({
-			level: 'error',
-			filename: SERVICE_ERROR_LOG,
-			format: logformat
-		})
-	);
+	if (SERVICE_ERROR_LOG) {
+		defaultTransports.push(
+			new transports.File({
+				level: 'error',
+				filename: SERVICE_ERROR_LOG,
+				format: logformat
+			})
+		);
+	}
 }
 
 function makeLogger(labelName: string) {

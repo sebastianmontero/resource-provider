@@ -6,3 +6,4 @@
 *.log
 *.sqlite
 *.db
+set-env.sh

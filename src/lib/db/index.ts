@@ -1,17 +1,33 @@
 import { Database } from 'bun:sqlite';
-import { drizzle } from 'drizzle-orm/bun-sqlite';
+import { drizzle as drizzleBun } from 'drizzle-orm/bun-sqlite';
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
+import { Client } from 'pg';
 
 import { generalLog } from '$lib/logger';
-import { DATABASE_FILE } from 'src/config';
+import { DATABASE_ADAPTER, DATABASE_FILE, DATABASE_URL } from 'src/config';
 
-const _dirname =
-	import.meta.dir.startsWith('/$bunfs/root') || import.meta.dir.startsWith('B:\\~BUN\\root')
-		? `${process.execPath}/..` // bun binary location
-		: `${import.meta.dir}/../../..`; // root of the project
+let db;
 
-export const dbPath = `${_dirname}/${DATABASE_FILE}`;
+if (DATABASE_ADAPTER === 'sqlite') {
+	const _dirname =
+		import.meta.dir.startsWith('/$bunfs/root') || import.meta.dir.startsWith('B:\\~BUN\\root')
+			? `${process.execPath}/..` // bun binary location
+			: `${import.meta.dir}/../../..`; // root of the project
 
-generalLog.debug('Using database file', { dbPath });
+	const dbPath = `${_dirname}/${DATABASE_FILE}`;
 
-const sqlite = new Database(dbPath, { create: true });
-export const database = drizzle({ client: sqlite });
+	generalLog.debug('Using database file', { dbPath });
+
+	const sqlite = new Database(dbPath, { create: true });
+	db = drizzleBun({ client: sqlite });
+} else if (DATABASE_ADAPTER === 'postgres') {
+	const client = new Client({
+		connectionString: DATABASE_URL
+	});
+	client.connect();
+	db = drizzlePg(client);
+} else {
+	throw new Error(`Unsupported database adapter: ${DATABASE_ADAPTER}`);
+}
+
+export const database = db;
