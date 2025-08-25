@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { migrate as drizzleMigrate } from 'drizzle-orm/bun-sqlite/migrator';
+import { migrate as drizzleMigrate } from 'drizzle-orm/node-postgres/migrator';
 import tempDir from 'temp-dir';
 
 import { migrationData } from './migration-data.generated';

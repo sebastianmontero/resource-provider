@@ -10,7 +10,7 @@ let db;
 
 if (DATABASE_ADAPTER === 'sqlite') {
 	const _dirname =
-		import.meta.dir.startsWith('/$bunfs/root') || import.meta.dir.startsWith('B:\\~BUN\\root')
+		import.meta.dir.startsWith('/$bunfs/root') || import.meta.dir.startsWith('B:\~BUN\root')
 			? `${process.execPath}/..` // bun binary location
 			: `${import.meta.dir}/../../..`; // root of the project
 
