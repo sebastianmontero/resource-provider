@@ -13,7 +13,7 @@
 		"eslint": "eslint .",
 		"format": "prettier --write .",
 		"test": "bun test",
-		"build:heroku": "bun build src/index.ts --outdir dist/"
+		"build:heroku": "bun build src/index.ts --outdir dist/ --target bun"
 	},
 	"devDependencies": {
 		"@types/bun": "^1.2.16",
