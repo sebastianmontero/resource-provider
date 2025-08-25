@@ -22,7 +22,8 @@ if (DATABASE_ADAPTER === 'sqlite') {
 	db = drizzleBun({ client: sqlite });
 } else if (DATABASE_ADAPTER === 'postgres') {
 	const client = new Client({
-		connectionString: DATABASE_URL
+		connectionString: DATABASE_URL,
+		ssl: true
 	});
 	client.connect();
 	db = drizzlePg(client);
