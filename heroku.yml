@@ -7,5 +7,5 @@ run:
       - bun dist/index.js start manager
 release:
   command:
-    - bun run src/lib/db/migrate.ts
+    - bun run src/lib/db/run-migrations.ts
   image: worker
