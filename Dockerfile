@@ -1,6 +1,8 @@
 # Use an official Bun image as a parent image
 FROM oven/bun:1.2.20
 
+RUN apt-get update && apt-get install -y python3 build-essential
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
