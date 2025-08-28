@@ -5,7 +5,7 @@ async function main() {
 	try {
 		await runMigrations();
 	} finally {
-		if (database) {
+		if (database && database.$client) {
 			await database.$client.end();
 		}
 	}

@@ -2,10 +2,10 @@ import { prompt } from './cli';
 import { ENVIRONMENT } from './config';
 import { server } from './provider';
 
-import { runMigrations } from '$lib/db/migrate';
+// import { runMigrations } from '$lib/db/migrate';
 import { generalLog } from '$lib/logger';
 
-runMigrations();
+// runMigrations();
 
 if (ENVIRONMENT === 'testing') {
 	// Automatically start the server in testing environment
@@ -13,5 +13,7 @@ if (ENVIRONMENT === 'testing') {
 	server();
 } else {
 	// Otherwise use prompt for CLI commands
-	prompt();
+	(async () => {
+		await prompt();
+	})();
 }

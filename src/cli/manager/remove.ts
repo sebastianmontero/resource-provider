@@ -8,9 +8,9 @@ export function makeManagerRemoveCommand() {
 	command
 		.addArgument(new Argument('<account>', 'The account name to remove from management'))
 		.description('Remove an account from automatic resource management')
-		.action((account) => {
+		.action(async (account) => {
 			managerLog.info('Removing account from management', { account });
-			managedAccounts.removeManagedAccount(account);
+			await managedAccounts.removeManagedAccount(account);
 		});
 	return command;
 }

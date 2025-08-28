@@ -12,13 +12,14 @@ import { makeManagerRunCommand } from './manager/run';
 import { makeManagerSetupCommand } from './manager/setup';
 import { makeManagerUnauthorizeCommand } from './manager/unauthorize';
 
+import { database } from '$lib/db';
 import { contractsDatabase } from '$lib/db/models/contract/contracts';
 import { UsageDatabase, defaultTtl } from '$lib/db/models/provider/usage';
 import { createEnvironmentalFile } from '$lib/env';
 
 const services = ['all', 'api', 'manager'];
 
-export function prompt() {
+export async function prompt() {
 	const usage = new UsageDatabase();
 	const program = new Command();
 	program
@@ -109,5 +110,10 @@ export function prompt() {
 			generalLog.info(`Adding usage for name: ${name}`);
 			// usage.addUsage(name, 10);
 		});
-	program.parse(process.argv);
+
+	await program.parseAsync(process.argv);
+
+	if (database && database.$client) {
+		await database.$client.end();
+	}
 }

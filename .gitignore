@@ -1,9 +1,12 @@
 /.env
 /.env.local
+/.env.eos
+/.env.jungle
 /node_modules/
 /src/lib/contracts/*.ts
 /dist/
 *.log
 *.sqlite
 *.db
-set-env.sh
+set-env-eos.sh
+set-env-jungle.sh

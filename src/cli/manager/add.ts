@@ -35,7 +35,7 @@ export function makeManagerAddCommand() {
 			)
 		)
 		.description('Automatically manage CPU/NET resources for an account')
-		.action((account, min_ms, min_kb, inc_ms, inc_kb, max_fee) => {
+		.action(async (account, min_ms, min_kb, inc_ms, inc_kb, max_fee) => {
 			const data = ManagedAccount.from({
 				account,
 				min_ms,
@@ -45,7 +45,7 @@ export function makeManagerAddCommand() {
 				max_fee: String(Asset.fromFloat(Number(max_fee), ANTELOPE_SYSTEM_TOKEN))
 			});
 			managerLog.info('Adding account to manage', objectify(data));
-			managedAccounts.addManagedAccount(data);
+			await managedAccounts.addManagedAccount(data);
 		});
 	return command;
 }

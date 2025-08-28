@@ -8,7 +8,9 @@ heroku create bennyfi-resource-provider --team bennyfi --remote bennyfi-resource
 heroku stack:set container --app bennyfi-resource-provider
 
 # Set env vars for the app example use the set env var script
-./set-env.sh
+./set-env-eos.sh
+
+git push bennyfi-resource-provider master
 
 # scale the app to 1 dyno, basically run the app
 heroku ps:scale worker=1:basic --app bennyfi-resource-provider
