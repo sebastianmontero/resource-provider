@@ -17,7 +17,11 @@ export class ManagerAccountDatabase extends AbstractDatabase {
 			.select()
 			.from(this.schema.manager)
 			.where(eq(this.schema.manager.account, MANAGER_ACCOUNT_NAME))
-			.limit(1);
+			.limit(1)
+			.catch((error) => {
+				managerLog.error('Error fetching manager account from database', { error });
+				throw error;
+			});
 		const manager = results[0];
 		const key = MANAGER_ACCOUNT_PRIVATEKEY || String(PrivateKey.generate('K1'));
 		if (!manager) {
