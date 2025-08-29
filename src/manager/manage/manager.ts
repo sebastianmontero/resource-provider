@@ -118,15 +118,17 @@ export async function manageManagerAccount(manager: Session, context: ManagerCon
 	const managerAccount = ManagedAccount.from({
 		account: MANAGER_ACCOUNT_NAME,
 		min_ms: Int64.from(MANAGER_MIN_MS),
-		min_kb: Int64.from(MANAGER_MIN_KB),
+		min_net_kb: Int64.from(MANAGER_MIN_KB),
+		min_ram_kb: Int64.from(MANAGER_RAM_MINIMUM_KB),
 		inc_ms: Int64.from(MANAGER_INC_MS),
-		inc_kb: Int64.from(MANAGER_INC_KB),
+		inc_net_kb: Int64.from(MANAGER_INC_KB),
+		inc_ram_kb: Int64.from(MANAGER_RAM_MINIMUM_KB),
 		max_fee: Asset.fromFloat(0.1, ANTELOPE_SYSTEM_TOKEN)
 	});
 	const requiredResources = getAccountRequiredResources(managerAccount, data);
 	const params = getPowerupParams(
 		managerAccount.inc_ms,
-		managerAccount.inc_kb,
+		managerAccount.inc_net_kb,
 		context.powerup,
 		context.sampleUsage,
 		requiredResources,
