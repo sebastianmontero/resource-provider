@@ -17,9 +17,11 @@ export async function addManagedAccount({
 	await managedAccounts.addManagedAccount({
 		account: body.account,
 		min_ms: body.min_ms,
-		min_kb: body.min_kb,
+		min_net_kb: body.min_net_kb,
+		min_ram_kb: body.min_ram_kb,
 		inc_ms: body.inc_ms,
-		inc_kb: body.inc_kb,
+		inc_net_kb: body.inc_net_kb,
+		inc_ram_kb: body.inc_ram_kb,
 		max_fee: body.max_fee
 	});
 	return {

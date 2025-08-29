@@ -77,22 +77,24 @@ The `rpcli` allows you to define which accounts will be automatically managed.
 To add an account, use the `rpcli manager add` command:
 
 ```
-rpcli manager add <account> <min_ms> <min_kb> <inc_ms> <inc_kb> <max_fee>
+rpcli manager add <account> <min_ms> <min_net_kb> <min_ram_kb> <inc_ms> <inc_net_kb> <inc_ram_kb> <max_fee>
 ```
 
 The values required for this command are as follows:
 
 - `account` is the account name to manage resources for
 - `min_ms` the minimum amount of CPU (in milliseconds) the account should have available
-- `min_kb` the minimum amount of NET (in kilobytes) the account should have available
+- `min_net_kb` the minimum amount of NET (in kilobytes) the account should have available
+- `min_ram_kb` the minimum amount of RAM (in kilobytes) the account should have available
 - `inc_ms` the amount of CPU (in milliseconds) to powerup when the minimum is not met
-- `inc_kb` the amount of NET (in kilobytes) to powerup when the minimum is not met
+- `inc_net_kb` the amount of NET (in kilobytes) to powerup when the minimum is not met
+- `inc_ram_kb` the amount of RAM (in kilobytes) to powerup when the minimum is not met
 - `max_fee` the maximum fee to pay for the powerup action
 
 So for example, to ensure the `ihasnocpunet` account always has 10ms and 10kb resources available, and setting the maximum fee to `0.5000 TOKEN`, the command would be:
 
 ```
-rpcli manager add ihasnocpunet 10 10 10 10 0.5
+rpcli manager add ihasnocpunet 10 10 10 10 10 10 0.5
 ```
 
 To modify the values set for an account, just run `rpcli manager add` again for the account and it will overwrite its configuration.
@@ -108,11 +110,11 @@ rpcli manager list
 A list of accounts will be displayed on the command line as follows:
 
 ```
-┌───┬──────────────┬────────┬────────┬────────┬────────┬──────────┐
-│   │ account      │ min_ms │ min_kb │ inc_ms │ inc_kb │ max_fee  │
-├───┼──────────────┼────────┼────────┼────────┼────────┼──────────┤
-│ 0 │ ihasnocpunet │ 10     │ 10     │ 10     │ 10     │ 0.5000 A │
-└───┴──────────────┴────────┴────────┴────────┴────────┴──────────┘
+┌───┬──────────────┬────────┬────────┬────────┬────────┬────────┬────────┬──────────┐
+│   │ account      │ min_ms │ min_net │ min_ram │ inc_ms │ inc_net │ inc_ram │ max_fee  │
+├───┼──────────────┼────────┼─────────┼─────────┼────────┼─────────┼─────────┼──────────┤
+│ 0 │ ihasnocpunet │ 10     │ 10      │ 10      │ 10     │ 10      │ 10      │ 0.5000 A │
+└───┴──────────────┴────────┴─────────┴─────────┴────────┴─────────┴─────────┴──────────┘
 ```
 
 ### Removing an account from management

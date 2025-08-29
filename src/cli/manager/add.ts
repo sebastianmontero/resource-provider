@@ -18,15 +18,24 @@ export function makeManagerAddCommand() {
 		)
 		.addArgument(
 			new Argument(
-				'<min_kb>',
+				'<min_net_kb>',
 				'Minimum NET available for account in kilobytes (e.g. 1 for 1kB/1000b)'
+			)
+		)
+		.addArgument(
+			new Argument(
+				'<min_ram_kb>',
+				'Minimum RAM available for account in kilobytes (e.g. 1 for 1kB/1000b)'
 			)
 		)
 		.addArgument(
 			new Argument('<inc_ms>', 'CPU increment per powerup in milliseconds (e.g. 1 for 1ms/1000µs)')
 		)
 		.addArgument(
-			new Argument('<inc_kb>', 'NET increment per powerup in kilobytes (e.g. 1 for 1kB/1000b)')
+			new Argument('<inc_net_kb>', 'NET increment per powerup in kilobytes (e.g. 1 for 1kB/1000b)')
+		)
+		.addArgument(
+			new Argument('<inc_ram_kb>', 'RAM increment per powerup in kilobytes (e.g. 1 for 1kB/1000b)')
 		)
 		.addArgument(
 			new Argument(
@@ -35,13 +44,15 @@ export function makeManagerAddCommand() {
 			)
 		)
 		.description('Automatically manage CPU/NET resources for an account')
-		.action(async (account, min_ms, min_kb, inc_ms, inc_kb, max_fee) => {
+		.action(async (account, min_ms, min_net_kb, min_ram_kb, inc_ms, inc_net_kb, inc_ram_kb, max_fee) => {
 			const data = ManagedAccount.from({
 				account,
 				min_ms,
-				min_kb,
+				min_net_kb,
+				min_ram_kb,
 				inc_ms,
-				inc_kb,
+				inc_net_kb,
+				inc_ram_kb,
 				max_fee: String(Asset.fromFloat(Number(max_fee), ANTELOPE_SYSTEM_TOKEN))
 			});
 			managerLog.info('Adding account to manage', objectify(data));

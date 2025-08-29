@@ -55,13 +55,26 @@ export function getAccountRequiresNET(
 	account: ManagedAccount,
 	resources: AccountResources
 ): boolean {
-	const netMinimum = account.min_kb.multiplying(1000);
+	const netMinimum = account.min_net_kb.multiplying(1000);
 	const netRequired = resources.net.lt(netMinimum);
 	managerLog.debug(
 		'Account NET Resource Status',
 		objectify({ netMinimum, netCurrent: resources.net, netRequired })
 	);
 	return netRequired;
+}
+
+export function getAccountRequiresRAM(
+	account: ManagedAccount,
+	resources: AccountResources
+): boolean {
+	const ramMinimum = account.min_ram_kb.multiplying(1000);
+	const ramRequired = resources.ram.lt(ramMinimum);
+	managerLog.debug(
+		'Account RAM Resource Status',
+		objectify({ ramMinimum, ramCurrent: resources.ram, ramRequired })
+	);
+	return ramRequired;
 }
 
 export function getAccountRequiredResources(
@@ -71,7 +84,8 @@ export function getAccountRequiredResources(
 	const resources = getAccountCurrentResources(data);
 	const cpuRequired = getAccountRequiresCPU(managed, resources);
 	const netRequired = getAccountRequiresNET(managed, resources);
-	if (cpuRequired || netRequired) {
+	const ramRequired = getAccountRequiresRAM(managed, resources);
+	if (cpuRequired || netRequired || ramRequired) {
 		managerLog.info(
 			'Account requires additional network resources',
 			objectify({
@@ -83,11 +97,16 @@ export function getAccountRequiredResources(
 				},
 				net: {
 					current: resources.net,
-					minimum: managed.min_kb.multiplying(1000),
+					minimum: managed.min_net_kb.multiplying(1000),
 					required: netRequired
+				},
+				ram: {
+					current: resources.ram,
+					minimum: managed.min_ram_kb.multiplying(1000),
+					required: ramRequired
 				}
 			})
 		);
 	}
-	return { cpuRequired, netRequired };
+	return { cpuRequired, netRequired, ramRequired };
 }
