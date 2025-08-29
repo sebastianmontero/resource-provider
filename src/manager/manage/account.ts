@@ -23,6 +23,9 @@ export async function manageAccountResources(
 		const managed = ManagedAccount.from(account);
 		const data = await getClient().v1.chain.get_account(managed.account);
 		const requiredResources = getAccountRequiredResources(managed, data);
+		managerLog.debug(
+			'before powerup params'
+		);
 		const params = getPowerupParams(
 			managed.inc_ms,
 			managed.inc_kb,
@@ -32,6 +35,10 @@ export async function manageAccountResources(
 			manager.actor,
 			managed.account,
 			managed.max_fee
+		);
+		managerLog.debug(
+			'powerup params',
+			objectify({ params })
 		);
 		if (params.cpu_frac.gt(Int64.zero) || params.net_frac.gt(Int64.zero)) {
 			const systemContract = await getContract(ANTELOPE_SYSTEM_CONTRACT);

@@ -21,15 +21,22 @@ if (DATABASE_ADAPTER === 'sqlite') {
 	const sqlite = new Database(dbPath, { create: true });
 	db = drizzleBun({ client: sqlite });
 } else if (DATABASE_ADAPTER === 'postgres') {
-	generalLog.info(`Connecting to Postgres database with URL: '${DATABASE_URL}'`);
-	const client = new Client({
-		connectionString: DATABASE_URL,
-		ssl: {
-			rejectUnauthorized: false
+	generalLog.info(`Connecting to Postgres database with URL1: '${DATABASE_URL}'`);
+	// const client = new Client({
+	// 	connectionString: DATABASE_URL,
+	// 	ssl: {
+	// 		rejectUnauthorized: false
+	// 	}
+	// });
+	// await client.connect();
+	db = drizzlePg({
+		connection: {
+			connectionString: DATABASE_URL!,
+			ssl: {
+				rejectUnauthorized: false
+			}
 		}
 	});
-	client.connect();
-	db = drizzlePg(client);
 } else {
 	throw new Error(`Unsupported database adapter: ${DATABASE_ADAPTER}`);
 }

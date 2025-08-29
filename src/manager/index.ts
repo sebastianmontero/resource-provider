@@ -25,7 +25,7 @@ export const managerJob = async function () {
 		}
 		for (const account of managerContext.managedAccounts) {
 			managerLog.debug('Running resource management', objectify({ account }));
-			manageAccountResources(manager, account, managerContext);
+			await manageAccountResources(manager, account, managerContext);
 		}
 	} catch (error) {
 		managerLog.error('managerJob failed', { error: String(error) });
@@ -42,7 +42,7 @@ export async function manager() {
 
 	managerLog.info('Resource Manager Service starting', { cron, cronOptions });
 	// Run immediately
-	managerJob();
+	await managerJob();
 
 	// Schedule the cron job
 	new Cron(cron, cronOptions, managerJob);

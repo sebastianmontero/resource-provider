@@ -111,9 +111,9 @@ export async function prompt() {
 			// usage.addUsage(name, 10);
 		});
 
-	await program.parseAsync(process.argv);
+	const cmd = await program.parseAsync(process.argv);
 
-	if (database && database.$client) {
+	if (database && database.$client && process.argv[2] !== 'start') {
 		await database.$client.end();
 	}
 }

@@ -17,6 +17,7 @@
 	},
 	"devDependencies": {
 		"@types/bun": "^1.2.16",
+		"@types/pg": "^8.15.5",
 		"@typescript-eslint/parser": "^8.34.1",
 		"bun-types": "latest",
 		"drizzle-kit": "^0.31.2",
